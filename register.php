@@ -6,21 +6,21 @@
    /* registeration is 5-steps process
       - step 1 - name, email, password, birthday, sex (płeć)
       - step 2 - username, phone (2 factor authorization), bio, avatar, background-photo
-      - step 3 - find friends (recommended friends)
-      - step 4 - summary
+      - step 3 - language, country, religion, politics, orientation, website, etc. (I'll add later)
+      - step 4 - find friends (recommended friends)
+      - step 5 - summary
    */
 
    // TODO: create birthday selects
+   // TODO: later add school & languages, but later veeery later
 
    // start -- session setup
    session_start();
 
    $_SESSION['step'] = 1;
-   if ($_SESSION['step1_completed'] == true) {
+   if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false)) {
       $_SESSION['step'] = 2;
-   }else if ($_SESSION['step2_completed'] == true) {
-      $_SESSION['step'] = 3;
-   }else if ($_SESSION['step2_completed'] == true) {
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true)) {
       $_SESSION['step'] = 3;
    }
    // end -- session setup
@@ -34,6 +34,9 @@
          exit();
       }else if (($_SESSION['step'] == 2) && ($step != 2)) {
          header("Location: register.php?step=2");
+         exit();
+      }else if (($_SESSION['step'] == 3) && ($step != 3)) {
+         header("Location: register.php?step=3");
          exit();
       }
 
@@ -109,7 +112,6 @@
             $_SESSION['email'] = $email;
             $_SESSION['password'] = $password_hashed;
             $_SESSION['gender'] = $gender;
-            // DB::query("INSERT INTO users VALUES (\'\', '', :fname, :lname, :name, :email, :password, '', '', '', '', '', '', '')", [':fname' => $firstname, ':lname' => $lastname, ':name' => $name, ':email' => $email, ':password' => $password_hashed]);
 
             $_SESSION['step1_completed'] = true;
             $_SESSION['step'] = 2; # step 1 is now completed, so we update `step` variable to 2.
@@ -168,6 +170,7 @@
       } # $step == 1 && $_SESSION['step'] == 1
 
       if ($step == 2 && $_SESSION['step'] == 2) { # $step is got from $_GET
+         $_SESSION['step2_completed'] = false;
          // start -- registeration errors array
          $errors = [
             "Username field must be filled out!",
@@ -254,10 +257,21 @@
 
             // start -- validation with js & php succeeded and now data'll be saved in session's variables
 
+            $_SESSION['username'] = $username;
+            $_SESSION['phone'] = $phone;
+            $_SESSION['bio'] = $bio;
+            $_SESSION['avatar-path'] = $hashed_avatar_name;
+            $_SESSION['backgroundphoto-path'] = $hashed_backgroundphoto_name;
+
+            $_SESSION['step2_completed'] = true;
+            $_SESSION['step'] = 3; # step 2 is now completed, so we update `step` variable to 3.
+
+            header("Location: register.php?step=3");
+            exit();
 
             // end -- validation with js & php succeeded and now data'll be saved in session's variables
          }
-         // end -- register step1 validation
+         // end -- register step2 validation
 
          ?>
          <!DOCTYPE html><html lang="<?= $app->lang ?>"><head><?php require_once('app/incs/head-metas.inc.php'); ?><title>Register</title></head><body><div id="registerS2"><h1>Register 2/4</h1>
@@ -325,6 +339,72 @@
          </div></body></html>
          <?php
       } # $step == 2 && $_SESSION['step'] == 2
+
+      if ($step == 3 && $_SESSION['step'] == 3) { # $step is got from $_GET
+         $_SESSION['step3_completed'] = false;
+         // start -- registeration errors array
+         $errors = [
+            "",
+            ""
+         ];
+         // end -- registeration errors array
+
+         // start -- register step2 validation
+         if (isset($_POST['registerS3'])) {
+            if (empty($_POST['firstname']) || empty($_POST['lastname']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['rpassword']) || empty($_POST['gender'])) {
+               header("Location: register.php?step=1&error=1"); #1 = All fields must be filled out!
+               exit();
+            }
+
+            // start -- check post variables
+            $username = Security::check($_POST['username']);
+            // end -- check post variables
+
+            ## validation
+
+            // start -- validation with js & php succeeded and now data'll be saved in session's variables
+
+            // $_SESSION['username'] = $username;
+            // $_SESSION['phone'] = $phone;
+            // $_SESSION['bio'] = $bio;
+            // $_SESSION['avatar-path'] = $hashed_avatar_name;
+            // $_SESSION['backgroundphoto-path'] = $hashed_backgroundphoto_name;
+
+            // $_SESSION['step3_completed'] = true;
+            // $_SESSION['step'] = 4; # step 3 is now completed, so we update `step` variable to 4.
+
+            header("Location: register.php?step=3");
+            exit();
+
+            // end -- validation with js & php succeeded and now data'll be saved in session's variables
+         }
+         // end -- register step2 validation
+         ?>
+         <!DOCTYPE html><html lang="<?= $app->lang ?>"><head><?php require_once('app/incs/head-metas.inc.php'); ?><title>Register</title></head><body><div id="registerS2"><h1>Register 3/4</h1>
+            <div id="errors"><?php
+               if (isset($_GET['error'])) {
+                  $error = htmlspecialchars(trim($_GET['error']));
+                        if ($error == 1) { $error = $errors[0];
+                  }else if ($error == 2) { $error = $errors[1];
+                  }else if ($error == 3) { $error = $errors[2];
+                  }else if ($error == 4) { $error = $errors[3];
+                  }else if ($error == 5) { $error = $errors[4];
+                  }else if ($error == 6) { $error = $errors[5];
+                  }else if ($error == 7) { $error = $errors[6];
+                  }
+
+                  echo $error;
+               }
+            ?></div>
+            <form action="register.php?step=3" method="post" onsubmit="return validateRegisterS3()" name="registerS3Form">
+
+               <div><button type="submit" name="registerS3" id="registerS3">continue</button></div>
+            </form>
+            <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+            <script src="assets/registerS3.js"></script>
+         </div></body></html>
+         <?php
+      } # $step == 3 && $_SESSION['step'] == 3
 
    }else {
       header("Location: register.php?step=1");
