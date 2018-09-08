@@ -3,10 +3,10 @@
    require('app/classes/security.php');
    require('app/classes/auth.php');
 
-   /* registeration is 5-steps process
+   /* NOTE: registeration is 5-steps process
       - step 1 - name, email, password, birthday, sex (płeć)
       - step 2 - username, phone (2 factor authorization), bio, avatar, background-photo
-      - step 3 - language, country, religion, politics, orientation, website, etc. (I'll add later)
+      - step 3 - language, country, city, religion, politics, orientation, website, etc. (I'll add later) (add to db)
       - step 4 - find friends (recommended friends)
       - step 5 - summary
    */
@@ -18,6 +18,7 @@
    session_start();
 
    $_SESSION['step'] = 1;
+   // TODO: add steps later
    if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false)) {
       $_SESSION['step'] = 2;
    }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true)) {
@@ -295,7 +296,7 @@
                   <label for="username">username: </label>
                   <?php
                      $username = strtolower($_SESSION['firstname'] . "." . $_SESSION['lastname']);
-                     $usernames = DB::query('SELECT username FROM users');
+                     $usernames = DB::query('SELECT user_username FROM users');
 
                      for ($i = 0; $i <= count($usernames); $i++) {
                         if ($username == $usernames[$i][0]) {
@@ -397,7 +398,46 @@
                }
             ?></div>
             <form action="register.php?step=3" method="post" onsubmit="return validateRegisterS3()" name="registerS3Form">
-
+               <?php // NOTE: language, country, city, religion, politics, orientation, website, etc. ?>
+               <div>
+                  <label for="language">language: </label>
+                  <select name="language" id="language">
+                     <option value="en">English</option>
+                     <option value="es">Español</option>
+                     <option value="pl">Polski</option>
+                     <option value="de">Deutsch</option>
+                     <option value="fr">Français</option>
+                     <option value="sv">Svenska</option>
+                     <option value="no">Norsk</option>
+                  </select>
+                  <p>If you're not a english speaker choose your native language. If your language is not available, do not worry, we will add it soon.</p>
+               </div>
+               <div>
+                  <label for="country">country: </label>
+                  <select name="country" id="country">
+                     <?php
+                     $countries = array("Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antarctica", "Antigua and Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia and Herzegowina", "Botswana", "Bouvet Island", "Brazil", "British Indian Ocean Territory", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Cayman Islands", "Central African Republic", "Chad", "Chile", "China", "Christmas Island", "Cocos (Keeling) Islands", "Colombia", "Comoros", "Congo", "Congo, the Democratic Republic of the", "Cook Islands", "Costa Rica", "Cote d'Ivoire", "Croatia (Hrvatska)", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Falkland Islands (Malvinas)", "Faroe Islands", "Fiji", "Finland", "France", "France Metropolitan", "French Guiana", "French Polynesia", "French Southern Territories", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe", "Guam", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Heard and Mc Donald Islands", "Holy See (Vatican City State)", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran (Islamic Republic of)", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, Democratic People's Republic of", "Korea, Republic of", "Kuwait", "Kyrgyzstan", "Lao, People's Democratic Republic", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libyan Arab Jamahiriya", "Liechtenstein", "Lithuania", "Luxembourg", "Macau", "Macedonia, The Former Yugoslav Republic of", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Martinique", "Mauritania", "Mauritius", "Mayotte", "Mexico", "Micronesia, Federated States of", "Moldova, Republic of", "Monaco", "Mongolia", "Montserrat", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "Netherlands Antilles", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Norfolk Island", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn", "Poland", "Portugal", "Puerto Rico", "Qatar", "Reunion", "Romania", "Russian Federation", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Seychelles", "Sierra Leone", "Singapore", "Slovakia (Slovak Republic)", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Georgia and the South Sandwich Islands", "Spain", "Sri Lanka", "St. Helena", "St. Pierre and Miquelon", "Sudan", "Suriname", "Svalbard and Jan Mayen Islands", "Swaziland", "Sweden", "Switzerland", "Syrian Arab Republic", "Taiwan, Province of China", "Tajikistan", "Tanzania, United Republic of", "Thailand", "Togo", "Tokelau", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Turks and Caicos Islands", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "United States Minor Outlying Islands", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Virgin Islands (British)", "Virgin Islands (U.S.)", "Wallis and Futuna Islands", "Western Sahara", "Yemen", "Yugoslavia", "Zambia", "Zimbabwe");
+                     foreach ($countries as $country) {
+                        echo "<option value='" . strtolower($country) . "'>" . strtolower($country) . "</option>";
+                     }
+                     ?>
+                  </select>
+               </div>
+               <div>
+                  <label for="city">city: </label>
+                  <input type="text" name="city" id="city" pattern="[a-zA-Z]+" title="City name can contain only letters!">
+                  <?php // IDEA: later we'll make it rather in a different way. Our team gonna create PAGE for each indivual city on the whole world by asigning them to the `city` category! DROPDOWN, LITTLE THUMBNAIL  ?>
+               </div>
+               <div>
+                  <label for="religion">religion: </label>
+                  <input type="text" name="religion" id="religion">
+                  <?php // IDEA: later we'll make it rather in a different way. Our team gonna create PAGE for each indivual religion that exists on the whole world by asigning them to the `religion` category! DROPDOWN, LITTLE THUMBNAIL  ?>
+                  <p>If you wanna share with our community in what you believe, just type it. (It's not obligatory)</p>
+               </div>
+               <div>
+                  <label for="website">website: </label>
+                  <input type="text" name="website" id="website">
+               </div>
                <div><button type="submit" name="registerS3" id="registerS3">continue</button></div>
             </form>
             <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
