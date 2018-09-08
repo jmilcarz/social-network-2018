@@ -1,7 +1,7 @@
 <?php
 
 class Auth {
-   private static function register() {
+   public static function uploadFile() {
 
    }
 }

@@ -8,8 +8,8 @@ function validateRegisterS2() {
    let avatar = document.forms['registerS2Form']['avatar'].value;
    let backgroundphoto = document.forms['registerS2Form']['backgroundphoto'].value;
 
-   if (username == "" || phone == "" || bio == "" || avatar == "" || backgroundphoto == "") {
-      $("#errors").html("<span>All fields must be filled!</span>");
+   if (username == "") {
+      $("#errors").html("<span>Username field must be filled!</span>");
       return false;
    }else if ((username.length <= 3) || (username.length >= 32)) {
       $("#errors").html("<span>Incorrect username! (min: 3 max: 32 characters)</span>");
@@ -17,13 +17,10 @@ function validateRegisterS2() {
    }else if ((phone != phone.replace(numbers, ""))) {
       $("#errors").html("<span>Phone number can contain only letters!</span>");
       return false;
-   }else if ((bio.length <= 3) || (bio.length >= 64)) {
+   }else if (bio != "" && (bio.length <= 3) || (bio.length >= 64)) {
       $("#errors").html("<span>Incorrect bio! (min: 3 max: 64 characters)</span>");
       return false;
    }
-
-   validateFile('avatar', 'avatar-preview');
-   validateFile('backgroundphoto', 'background-preview');
 
 }
 
