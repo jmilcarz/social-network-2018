@@ -5,28 +5,39 @@
 
    /* registeration is 5-steps process
       - step 1 - name, email, password, sex (płeć)
-      - step 2 - username, phone (2 factor authorization), said_sex (jak się zwracać (on lub ona)), bio (info about user)
-      - step 3 - avatar, background-photo
-      - step 4 - find friends (recommended friends)
-      - step 5 - summary
+      - step 2 - username, phone (2 factor authorization), bio, avatar, background-photo
+      - step 3 - find friends (recommended friends)
+      - step 4 - summary
    */
 
    // TODO: php validation with redirection to register.php?step=1 | errors in address like this register.php?step=1&error=blablalbsl
 
+   // start -- session setup
    session_start();
    $_SESSION['step'] = 1;
+   if ($_SESSION['step1_completed'] == true) {
+      $_SESSION['step'] = 2;
+   }else if ($_SESSION['step2_completed'] == true) {
+      $_SESSION['step'] = 3;
+   }else if ($_SESSION['step2_completed'] == true) {
+      $_SESSION['step'] = 3;
+   }
+   // end -- session setup
 
    if (isset($_GET['step']) && is_numeric($_GET['step'])) {
       $step = htmlspecialchars(trim($_GET['step']));
 
-      // for ($i = 1; $i < 5; $i++) {
-      //    if ($step == $i && $_SESSION['step'] == $i) {
-      //       echo "current step";
-      //       exit();
-      //    }
-      // }
+      // start -- user cheated by trying jump over step
+      if (($_SESSION['step'] == 1) && ($step != 1)) {
+         header("Location: register.php?step=1");
+         exit();
+      }else if (($_SESSION['step'] == 2) && ($step != 2)) {
+         header("Location: register.php?step=2");
+         exit();
+      }
 
       if ($step == 1 && $_SESSION['step'] == 1) {
+         $_SESSION['step1_completed'] = false;
          // start -- registeration errors array
          $errors = [
             "All fields must be filled out!",
@@ -42,6 +53,7 @@
          ];
          // end -- registeration errors array
 
+         // start -- register step1 validation
          if (isset($_POST['registerS1']) && isset($_POST['firstname']) && isset($_POST['lastname']) && isset($_POST['email']) && isset($_POST['password']) && isset($_POST['rpassword']) && isset($_POST['gender'])) {
             if (empty($_POST['firstname']) || empty($_POST['lastname']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['rpassword']) || empty($_POST['gender'])) {
                header("Location: register.php?step=1&error=1"); #1 = All fields must be filled out!
@@ -57,7 +69,6 @@
             $gender = Security::check($_POST['gender']);
             // end -- check post variables
 
-            // start -- register step1 validation
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                header("Location: register.php?step=1&error=2"); #2 = Incorrect email address!
                exit();
@@ -67,13 +78,13 @@
             }else if ((strlen($password) <= 8) || (strlen($password) >= 64)) {
                header("Location: register.php?step=1&error=4"); #4 = Password has to be at least 8 characters long!
                exit();
-            }else if ((strlen($rprassword) <= 8) || (strlen($rpassword) >= 64)) {
+            }else if ((strlen($rpassword) <= 8) || (strlen($rpassword) >= 64)) {
                header("Location: register.php?step=1&error=5"); #5 = Repeated password has to be at least 8 characters long!
                exit();
             }else if ((strlen($email) <= 8) || (strlen($email) >= 64)) {
                header("Location: register.php?step=1&error=6"); #6 = Email address has to be at least 8 characters long!
                exit();
-            }else if (($gender != "male") || ($gender != "female")) {
+            }else if ($gender != "male" && $gender != "female") {
                header("Location: register.php?step=1&error=7"); #7 = Incorrect gender!
                exit();
             }else if ((strlen($firstname) <= 2) || (strlen($firstname) >= 32)) {
@@ -86,28 +97,29 @@
                header("Location: register.php?step=1&error=10"); #10 = Name can contain only letters!
                exit();
             }
-            // end -- register step1 validation
 
             // start -- validation with js & php succeeded and now data'll be saved in session's variables
 
             $password_hashed = password_hash($password, PASSWORD_DEFAULT);
 
-            $_SESSION['firstname'] == $firstname;
-            $_SESSION['lastname'] == $lastname;
-            $_SESSION['email'] == $email;
-            $_SESSION['password'] == $password_hashed;
-            $_SESSION['gender'] == $gender;
+            $_SESSION['firstname'] = $firstname;
+            $_SESSION['lastname'] = $lastname;
+            $_SESSION['email'] = $email;
+            $_SESSION['password'] = $password_hashed;
+            $_SESSION['gender'] = $gender;
 
+            $_SESSION['step1_completed'] = true;
             $_SESSION['step'] = 2; # step 1 is now completed, so we update `step` variable to 2.
+
             header("Location: register.php?step=2");
             exit();
 
             // end -- validation with js & php succeeded and now data'll be saved in session's variables
          }
+         // end -- register step1 validation
 
          ?>
-         <!DOCTYPE html><html lang="<?= $app->lang ?>"><head><?php require_once('app/incs/head-metas.inc.php'); ?><title>Register</title></head><body><div id="registerS1">
-            <h1>Register</h1>
+         <!DOCTYPE html><html lang="<?= $app->lang ?>"><head><?php require_once('app/incs/head-metas.inc.php'); ?><title>Register</title></head><body><div id="registerS1"><h1>Register</h1>
             <div id="errors"><?php
                if (isset($_GET['error'])) {
                   $error = htmlspecialchars(trim($_GET['error']));
@@ -137,10 +149,10 @@
                   <label for="email">email: </label><input type="text" name="email" value="" id="email" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$" title="Incorrect email address!">
                </div>
                <div>
-                  <label for="password">password: </label><input type="text" name="password" value="" id="passowrd">
+                  <label for="password">password: </label><input type="password" name="password" value="" id="password">
                </div>
                <div>
-                  <label for="rpassword">repeat password: </label><input type="text" name="rpassword" value="" id="rpassword">
+                  <label for="rpassword">repeat password: </label><input type="password" name="rpassword" value="" id="rpassword">
                </div>
                <div>
                   <input type="radio" name="gender" value="male" checked> Male <input type="radio" name="gender" value="female"> Female
@@ -148,22 +160,66 @@
                <div><button type="submit" name="registerS1">register</button></div>
             </form>
             <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-            <!-- <script src="assets/registerS1.js"></script> -->
+            <script src="assets/registerS1.js"></script>
          </div></body></html>
          <?php
-      }else {
-         header("Location: register.php?step=1");
-         exit();
-      }
+      } # $step == 1 && $_SESSION['step'] == 1
 
-      if ($step == 2 && $_SESSION['step'] == 2) {
+      if ($step == 2 && $_SESSION['step'] == 2) { # $step is got from $_GET
+         // start -- registeration errors array
+         $errors = [
+            "",
+            "",
+            "",
+            "",
+         ];
+         // end -- registeration errors array
+         ?>
+         <!DOCTYPE html><html lang="<?= $app->lang ?>"><head><?php require_once('app/incs/head-metas.inc.php'); ?><title>Register</title></head><body><div id="registerS1"><h1>Register 2/4</h1>
+            <div id="errors"></div>
+            <form action="register.php?step=2" method="post" onsubmit="return validateRegisterS2()" name="registerS2Form">
+               <div>
+                  <label for="username">username: </label>
+                  <input type="text" name="username" value="" id="username" pattern="[a-zA-Z0-9]+" title="Incorrect username!">
+                  <p>Add your unique username to mention others or to be mentioned!</p>
+               </div>
+               <hr>
+               <div>
+                  <label for="phone">phone number: </label>
+                  <input type="tel" name="phone" value="" id="phone">
+                  <p>Add phone number to receive sms codes to loggin faster!</p>
+               </div>
+               <hr>
+               <div>
+                  <label for="bio">bio: </label>
+                  <textarea name="bio" id="bio" rows="5" cols="50" value=""></textarea>
+                  <p>Write something about yourself!</p>
+               </div>
+               <hr>
+               <div>
+                  <label for="avatar">profile avatar: </label>
+                  <input type="file" name="avatar" id="avatar" accept="image/*" data-type="image" onchange="return validateFile('avatar', 'avatar-preview')">
+                  <div id="avatar-preview" style="width: 100px; height: 100px"></div>
+                  <p>Add profile avatar to be recognized by your potential friends!</p>
+               </div>
+               <hr>
+               <div>
+                  <label for="backgroundphoto">profile's background image: </label>
+                  <input type="file" name="backgroundphoto" id="backgroundphoto" accept="image/*" data-type="image" onchange="return validateFile('backgroundphoto', 'background-preview')">
+                  <p>Add profile's background image to decorate your profile!</p>
+                  <div id="background-preview" style="width: 300px; height: 140px"></div>
+               </div>
+               <div><button type="submit">continue</button></div>
+            </form>
+            <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+            <script src="assets/registerS2.js"></script>
+         </div></body></html>
+         <?php
+      } # $step == 2 && $_SESSION['step'] == 2
 
-      }else {
-         header("Location: register.php?step=2");
-         exit();
-      }
-
-
+   }else {
+      header("Location: register.php?step=1");
+      exit();
    }
 
 ?>

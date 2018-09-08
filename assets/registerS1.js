@@ -21,7 +21,7 @@ function validateRegisterS1() {
       $("#errors").html("<span>Password has to be at least 8 characters long!</span>");
       return false;
    }else if ((rpassword.length <= 8) || (rpassword.length >= 64)) {
-      $("#errors").html("<span>Password has to be at least 8 characters long!</span>");
+      $("#errors").html("<span>Repeated password has to be at least 8 characters long!</span>");
       return false;
    }else if ((email.length <= 8) || (email.length >= 64)) {
       $("#errors").html("<span>Email has to be at least 8 characters long!</span>");
