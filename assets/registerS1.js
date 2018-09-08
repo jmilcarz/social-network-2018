@@ -12,7 +12,7 @@ function validateRegisterS1() {
       $("#errors").html("<span>All fields must be filled!</span>");
       return false;
    }else if (!validateEmail(email)) {
-      $("#errors").html("<span>Incorrect Email!</span>");
+      $("#errors").html("<span>Incorrect email address!</span>");
       return false;
    }else if (password != rpassword) {
       $("#errors").html("<span>Passwords don't match!</span>");
