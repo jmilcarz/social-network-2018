@@ -16,13 +16,17 @@
 
    // start -- session setup
    session_start();
-
+   // session_destroy();
    $_SESSION['step'] = 1;
    // TODO: add steps later
-   if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false)) {
+   if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step3_completed'] == false)) {
       $_SESSION['step'] = 2;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true)) {
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step3_completed'] == false)) {
       $_SESSION['step'] = 3;
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step3_completed'] == false)) {
+      $_SESSION['step'] = 4;
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step3_completed'] == true)) {
+      $_SESSION['step'] = 5;
    }
    // end -- session setup
 
@@ -54,7 +58,8 @@
             "Incorrect gender!",
             "Incorrect first name! (min: 2 max: 32 characters)",
             "Incorrect last name! (min: 2 max: 32 characters)",
-            "Name can contain only letters!"
+            "Name can contain only letters!",
+            "Email address already taken!"
          ];
          // end -- registeration errors array
 
@@ -73,9 +78,11 @@
             $rpassword = Security::check($_POST['rpassword']);
             $gender = Security::check($_POST['gender']);
             // end -- check post variables
-
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                header("Location: register.php?step=1&error=2"); #2 = Incorrect email address!
+               exit();
+            }else if (DB::query('SELECT user_email FROM users WHERE user_email = :email', [':email' => $email])[0]['user_email']) {
+               header("Location: register.php?step=1&error=11"); #11 = Email address already taken!
                exit();
             }else if ($password != $rpassword) {
                header("Location: register.php?step=1&error=3"); #3 = Passwords don't match!
@@ -105,17 +112,24 @@
 
             // start -- validation with js & php succeeded and now data'll be saved in session's variables
 
-            $password_hashed = password_hash($password, PASSWORD_DEFAULT);
-
             $_SESSION['firstname'] = $firstname;
             $_SESSION['lastname'] = $lastname;
             $_SESSION['name'] = $firstname . " " . $lastname;
             $_SESSION['email'] = $email;
-            $_SESSION['password'] = $password_hashed;
+            $_SESSION['password'] = password_hash($password, PASSWORD_DEFAULT);
             $_SESSION['gender'] = $gender;
+            $_SESSION['birthday'] = "0"; # TODO: add birthday script
 
-            $_SESSION['step1_completed'] = true;
+            if ($gender == "male") {
+               $_SESSION['sex'] = "m";
+            }else if ($gender == "female") {
+               $_SESSION['sex'] = "f";
+            }else {
+               $_SESSION['sex'] = "m";
+            }
+
             $_SESSION['step'] = 2; # step 1 is now completed, so we update `step` variable to 2.
+            $_SESSION['step1_completed'] = true;
 
             header("Location: register.php?step=2");
             exit();
@@ -138,6 +152,7 @@
                   }else if ($error == 8) { $error = $errors[7];
                   }else if ($error == 9) { $error = $errors[8];
                   }else if ($error == 10) { $error = $errors[9];
+                  }else if ($error == 11) { $error = $errors[10];
                   }
 
                   echo $error;
@@ -180,7 +195,8 @@
             "Phone number can contain only numbers!",
             "Incorrect bio! (min: 3 max: 64 characters)",
             "Problem appeared while uploading profile picture, please refresh the page.",
-            "Problem appeared while uploading background picture, please refresh the page."
+            "Problem appeared while uploading background picture, please refresh the page.",
+            "Username already taken!"
          ];
          // end -- registeration errors array
 
@@ -190,47 +206,49 @@
                header("Location: register.php?step=2&error=1"); #1 = Username field must be filled out!
                exit();
             }
-
+            // FIXME: phone number is a string! must change that!
             // start -- check post variables
             $username = Security::check($_POST['username']);
             if (empty($_POST['phone'])) {
-               $phone = "phone-is-123-clear-without-any-content";
+               $phone = "666";
             }else {
                $phone = Security::check($_POST['phone']);
             }
             if (empty($_POST['bio'])) {
-               $bio = "bio-is-123-clear-without-any-content";
+               $bio = "nothing";
             }else {
                $bio = Security::check($_POST['bio']);
             }
             if (empty($_FILES['avatar']['name'])) {
-               $avatar = "avatar-is-123-clear-without-any-content";
+               $avatar = "nothing";
             }else {
                $avatar = $_FILES['avatar'];
             }
             if (empty($_FILES['backgroundphoto']['name'])) {
-               $backgroundphoto = "backgroundphoto-is-123-clear-without-any-content";
+               $backgroundphoto = "nothing";
             }else {
                $backgroundphoto = $_FILES['backgroundphoto'];
             }
-
             // end -- check post variables
 
             if ((strlen($username) <= 3) || (strlen($username) >= 32)) {
                header("Location: register.php?step=2&error=2"); #2 = Incorrect username! (min: 3 max: 32 characters)
                exit();
+            }if (DB::query('SELECT user_username FROM users WHERE user_username = :username', [':username' => $username])[0]['user_username']) {
+               header("Location: register.php?step=22&error=11"); #8 = Username already taken!
+               exit();
             }else if (!preg_match("/[a-z0-9.]/i", $username)) {
                header("Location: register.php?step=2&error=3"); #3 = Username can contain only letters & numbers!
                exit();
-            }else if ($phone != "phone-is-123-clear-without-any-content" && !preg_match("/^[0-9]*$/", $phone)) {
+            }else if ($phone != "666" && !preg_match("/^[0-9]*$/", $phone)) {
                header("Location: register.php?step=2&error=4"); #4 = Phone number can contain only numbers!
                exit();
-            }else if ($bio != "bio-is-123-clear-without-any-content" && (strlen($bio) <= 3) && strlen($bio) >= 64) {
+            }else if ($bio != "nothing" && (strlen($bio) <= 3) && strlen($bio) >= 64) {
                header("Location: register.php?step=2&error=5"); #5 = Incorrect bio! (min: 3 max: 64 characters)
                exit();
             }
 
-            if ($avatar != "avatar-is-123-clear-without-any-content") {
+            if ($avatar != "nothing") {
                $hashed_avatar_name = md5(basename($_FILES['avatar']['name'])) . "." . substr($_FILES['avatar']['type'], 6);
                $uploaddir = '/Applications/MAMP/htdocs/facebook/storage/pictures/⁩';
                $uploadfile = $uploaddir . $hashed_avatar_name;
@@ -243,7 +261,7 @@
                }
             }
 
-            if ($backgroundphoto != "backgroundphoto-is-123-clear-without-any-content") {
+            if ($backgroundphoto != "nothing") {
                $hashed_backgroundphoto_name = md5(basename($_FILES['backgroundphoto']['name'])) . "." . substr($_FILES['backgroundphoto']['type'], 6);
                $uploaddir = '/Applications/MAMP/htdocs/facebook/storage/pictures/⁩';
                $uploadfile = $uploaddir . $hashed_backgroundphoto_name;
@@ -251,7 +269,7 @@
                if (move_uploaded_file($_FILES['backgroundphoto']['tmp_name'], $uploadfile)) {
                   echo "";
                }else {
-                  header("Location: register.php?step=2&error=7"); #6 = Problem appeared while uploading background picture, please refresh the page.
+                  header("Location: register.php?step=2&error=7"); #7 = Problem appeared while uploading background picture, please refresh the page.
                   exit();
                }
             }
@@ -261,8 +279,16 @@
             $_SESSION['username'] = $username;
             $_SESSION['phone'] = $phone;
             $_SESSION['bio'] = $bio;
-            $_SESSION['avatar-path'] = $hashed_avatar_name;
-            $_SESSION['backgroundphoto-path'] = $hashed_backgroundphoto_name;
+            if ($avatar == "nothing") {
+               $_SESSION['avatar'] = "no-photo";
+            }else {
+               $_SESSION['avatar'] = $hashed_avatar_name;
+            }
+            if ($backgroundphoto == "nothing") {
+               $_SESSION['backgroundphoto'] = "no-photo";
+            }else {
+               $_SESSION['backgroundphoto'] = $hashed_backgroundphoto_name;
+            }
 
             $_SESSION['step2_completed'] = true;
             $_SESSION['step'] = 3; # step 2 is now completed, so we update `step` variable to 3.
@@ -286,6 +312,7 @@
                   }else if ($error == 5) { $error = $errors[4];
                   }else if ($error == 6) { $error = $errors[5];
                   }else if ($error == 7) { $error = $errors[6];
+                  }else if ($error == 8) { $error = $errors[7];
                   }
 
                   echo $error;
@@ -345,43 +372,163 @@
          $_SESSION['step3_completed'] = false;
          // start -- registeration errors array
          $errors = [
-            "",
-            ""
+            "All fields except religion & website must be filled out!",
+            "Incorrect language!",
+            "Incorrect city!",
+            "City name has to be at least 3 characters long!",
+            "Incorrect religion!",
+            "Religion has to be at least 3 characters long!",
+            "Incorrect country!"
          ];
          // end -- registeration errors array
 
-         // start -- register step2 validation
+         // start -- register step3 validation
          if (isset($_POST['registerS3'])) {
-            if (empty($_POST['firstname']) || empty($_POST['lastname']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['rpassword']) || empty($_POST['gender'])) {
-               header("Location: register.php?step=1&error=1"); #1 = All fields must be filled out!
+            if (empty($_POST['language']) || empty($_POST['country']) || empty($_POST['city'])) {
+               header("Location: register.php?step=3&error=1"); #1 = All fields except religion & website must be filled out!
                exit();
             }
 
             // start -- check post variables
-            $username = Security::check($_POST['username']);
+            $language = Security::check($_POST['language']);
+            $country = Security::check($_POST['country']);
+            $city = Security::check($_POST['city']);
+            if (empty($_POST['religion'])) {
+               $religion = "nothing";
+            }else {
+               $religion = Security::check($_POST['city']);
+            }
             // end -- check post variables
 
-            ## validation
+            if ($language == "en" || $language == "es" || $language == "pl" || $language == "de" || $language == "fr") {
+               echo " ";
+            }else {
+               header("Location: register.php?step=3&error=2"); #2 = Incorrect language!
+               exit();
+            }
+
+            $countries = [
+               "Afghanistan", "Aland Islands", "Albania", "Algeria",
+               "American Samoa", "Andorra", "Angola", "Anguilla",
+               "Antarctica", "Antigua", "Argentina", "Armenia", "Aruba",
+               "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain",
+               "Bangladesh", "Barbados", "Barbuda", "Belarus", "Belgium",
+               "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia",
+               "Botswana", "Bouvet Island", "Brazil",
+               "British Indian Ocean Trty.", "Brunei Darussalam", "Bulgaria",
+               "Burkina Faso", "Burundi", "Caicos Islands", "Cambodia",
+               "Cameroon", "Canada", "Cape Verde", "Cayman Islands",
+               "Central African Republic", "Chad", "Chile", "China", "Christmas Island",
+               "Cocos (Keeling) Islands", "Colombia", "Comoros", "Congo",
+               "Congo, Democratic Republic of the", "Cook Islands", "Costa Rica",
+               "Cote d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark",
+               "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
+               "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia",
+               "Falkland Islands (Malvinas)", "Faroe Islands", "Fiji", "Finland", "France",
+               "French Guiana", "French Polynesia", "French Southern Territories",
+               "Futuna Islands", "Gabon", "Gambia", "Georgia", "Germany",
+               "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe",
+               "Guam", "Guatemala", "Guernsey", "Guinea", "Guinea-Bissau", "Guyana",
+               "Haiti", "Heard", "Herzegovina", "Holy See", "Honduras", "Hong Kong",
+               "Hungary", "Iceland", "India", "Indonesia", "Iran (Islamic Republic of)",
+               "Iraq", "Ireland", "Isle of Man", "Israel", "Italy", "Jamaica",
+               "Jan Mayen Islands", "Japan", "Jersey", "Jordan", "Kazakhstan",
+               "Kenya", "Kiribati", "Korea", "Korea (Democratic)", "Kuwait",
+               "Kyrgyzstan", "Lao", "Latvia", "Lebanon", "Lesotho", "Liberia",
+               "Libyan Arab Jamahiriya", "Liechtenstein", "Lithuania", "Luxembourg",
+               "Macao", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives",
+               "Mali", "Malta", "Marshall Islands", "Martinique", "Mauritania",
+               "Mauritius", "Mayotte", "McDonald Islands", "Mexico", "Micronesia",
+               "Miquelon", "Moldova", "Monaco", "Mongolia", "Montenegro", "Montserrat",
+               "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
+               "Netherlands Antilles", "Nevis", "New Caledonia", "New Zealand", "Nicaragua",
+               "Niger", "Nigeria", "Niue", "Norfolk Island", "Northern Mariana Islands",
+               "Norway", "Oman", "Pakistan", "Palau", "Palestinian Territory, Occupied",
+               "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn",
+               "Poland", "Portugal", "Principe", "Puerto Rico", "Qatar", "Reunion", "Romania",
+               "Russian Federation", "Rwanda", "Saint Barthelemy", "Saint Helena", "Saint Kitts",
+               "Saint Lucia", "Saint Martin (French part)", "Saint Pierre", "Saint Vincent",
+               "Samoa", "San Marino", "Sao Tome", "Saudi Arabia", "Senegal", "Serbia",
+               "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia",
+               "Solomon Islands", "Somalia", "South Africa", "South Georgia",
+               "South Sandwich Islands", "Spain", "Sri Lanka", "Sudan", "Suriname",
+               "Svalbard", "Swaziland", "Sweden", "Switzerland", "Syrian Arab Republic",
+               "Taiwan", "Tajikistan", "Tanzania", "Thailand", "The Grenadines",
+               "Timor-Leste", "Tobago", "Togo", "Tokelau", "Tonga",
+               "Trinidad", "Tunisia", "Turkey", "Turkmenistan", "Turks Islands",
+               "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
+               "United States", "Uruguay", "US Minor Outlying Islands", "Uzbekistan",
+               "Vanuatu", "Vatican City State", "Venezuela", "Vietnam",
+               "Virgin Islands (British)", "Virgin Islands (US)", "Wallis",
+               "Western Sahara", "Yemen", "Zambia", "Zimbabwe"];
+
+            // TODO: loop through $countries array and check post country
+            // TODO: after this we'll prepare DB::query, but we won't insert values
+            // TODO: then we'll make "find friends" page where user can find friends that live in the same country and city (ordered by city)
+            // TODO: last page is the profile page with "edit view" turned on or something
+            // while ($i <= count($countries)) {
+            //    if ($country != strtolower($countries[$i])) {
+            //       $i++;
+            //    }else {
+            //       echo "lol";
+            //       break 1;
+            //    }
+            // }
+            // if ($country != "afghanistan" || $country != "aland islands" || $country != "albania" || $country != "algeria" || $country != "american samoa" || $country != "andorra" || $country != "angola" || $country != "anguilla" || $country != "antarctica" || $country != "antigua") {
+            //    header("Location: register.php?step=3&error=7"); #7 = Incorrect country!
+            //    exit();
+            // }else if ($country != "argentina" || $country != "armenia" || $country != "aruba" || $country != "australia" || $country != "austria" || $country != "azerbaijan" || $country != "bahamas" || $country != "bahrain" || $country != "bangladesh" || $country != "barbados" || $country != "barbuda") {
+            //    header("Location: register.php?step=3&error=7"); #7 = Incorrect country!
+            //    exit();
+            // }else if ($country != "belarus" || $country != "belgium" || $country != "belize" || $country != "benin" || $country != "bhutan" || $country != "bermuda" || $country != "bolivia" || $country != "bosnia" || $country != "bouvet island" || $country != "botswana" || $country != "british indian ocean trty." || $country != "brazil" || $country != "brunei darussalam") {
+            //    header("Location: register.php?step=3&error=7"); #7 = Incorrect country!
+            //    exit();
+            // }
+
+            if (!preg_match("/[a-zA-Zs]/i", $city)) {
+               header("Location: register.php?step=3&error=3"); #3 = Incorrect city!
+               exit();
+            }else if ((strlen($city) <= 3) && (strlen($city) >= 48)) {
+               header("Location: register.php?step=3&error=4"); #4 = City name has to be at least 3 characters long!
+               exit();
+            }
+            if ($religion != "") {
+               if (!preg_match("/[a-zA-Zs]/i", $religion)) {
+                  header("Location: register.php?step=3&error=5"); #5 = Incorrect religion!
+                  exit();
+               }else if ((strlen($religion) <= 3) && (strlen($religion) >= 48)) {
+                  header("Location: register.php?step=3&error=6"); #6 = Religion has to be at least 3 characters long!
+                  exit();
+               }
+            }
 
             // start -- validation with js & php succeeded and now data'll be saved in session's variables
 
-            // $_SESSION['username'] = $username;
-            // $_SESSION['phone'] = $phone;
-            // $_SESSION['bio'] = $bio;
-            // $_SESSION['avatar-path'] = $hashed_avatar_name;
-            // $_SESSION['backgroundphoto-path'] = $hashed_backgroundphoto_name;
+            $_SESSION['language'] = $language;
+            $_SESSION['country'] = $country;
+            $_SESSION['city'] = $city;
+            $_SESSION['religion'] = $religion;
 
-            // $_SESSION['step3_completed'] = true;
-            // $_SESSION['step'] = 4; # step 3 is now completed, so we update `step` variable to 4.
+            if ($_SESSION['phone'] == "666") {
+               $_SESSION['phone'] = 0;
+            }
 
-            header("Location: register.php?step=3");
+            DB::query('INSERT INTO users VALUES (\'\', :username, :firstname, :lastname, :name, :email, :phone, :password, :birthday, :sex, :avatar, :backgroundphoto)', [':username' => $_SESSION['username'], ':firstname' => $_SESSION['firstname'], ':lastname' => $_SESSION['lastname'], ':name' => $_SESSION['name'], ':email' => $_SESSION['email'], ':phone' => $_SESSION['phone'], ':password' => $_SESSION['password'], ':birthday' => $_SESSION['birthday'], ':sex' => $_SESSION['sex'], ':avatar' => $_SESSION['avatar'], ':backgroundphoto' => $_SESSION['backgroundphoto']]);
+            echo "works!";
+            $userid = DB::query('SELECT id FROM users WHERE user_username = :username AND user_email = :email AND user_password = :password', [':username' => $_SESSION['username'], ':email' => $_SESSION['email'], ':password' => $_SESSION['password']])[0]['id'];
+            DB::query('INSERT INTO user_info VALUES (\'\', :userid, :lang, :country, :city, :bio, :gender, :religion)', [':userid' => $userid, ':lang' => $_SESSION['language'], ':country' => $_SESSION['country'], ':city' => $_SESSION['city'], ':bio' => $_SESSION['bio'], ':gender' => $_SESSION['gender'], ':religion' => $_SESSION['religion']]);
+
+            $_SESSION['step3_completed'] = true;
+            $_SESSION['step'] = 4; # step 3 is now completed, so we update `step` variable to 4.
+
+            header("Location: register.php?step=4");
             exit();
 
             // end -- validation with js & php succeeded and now data'll be saved in session's variables
          }
-         // end -- register step2 validation
+         // end -- register step3 validation
          ?>
-         <!DOCTYPE html><html lang="<?= $app->lang ?>"><head><?php require_once('app/incs/head-metas.inc.php'); ?><title>Register</title></head><body><div id="registerS2"><h1>Register 3/4</h1>
+         <!DOCTYPE html><html lang="<?= $app->lang ?>"><head><?php require_once('app/incs/head-metas.inc.php'); ?><title>Register</title></head><body><div id="registerS3"><h1>Register 3/4</h1>
             <div id="errors"><?php
                if (isset($_GET['error'])) {
                   $error = htmlspecialchars(trim($_GET['error']));
@@ -407,8 +554,6 @@
                      <option value="pl">Polski</option>
                      <option value="de">Deutsch</option>
                      <option value="fr">Français</option>
-                     <option value="sv">Svenska</option>
-                     <option value="no">Norsk</option>
                   </select>
                   <p>If you're not a english speaker choose your native language. If your language is not available, do not worry, we will add it soon.</p>
                </div>
@@ -416,7 +561,7 @@
                   <label for="country">country: </label>
                   <select name="country" id="country">
                      <?php
-                     $countries = array("Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antarctica", "Antigua and Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia and Herzegowina", "Botswana", "Bouvet Island", "Brazil", "British Indian Ocean Territory", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Cayman Islands", "Central African Republic", "Chad", "Chile", "China", "Christmas Island", "Cocos (Keeling) Islands", "Colombia", "Comoros", "Congo", "Congo, the Democratic Republic of the", "Cook Islands", "Costa Rica", "Cote d'Ivoire", "Croatia (Hrvatska)", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Falkland Islands (Malvinas)", "Faroe Islands", "Fiji", "Finland", "France", "France Metropolitan", "French Guiana", "French Polynesia", "French Southern Territories", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe", "Guam", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Heard and Mc Donald Islands", "Holy See (Vatican City State)", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran (Islamic Republic of)", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, Democratic People's Republic of", "Korea, Republic of", "Kuwait", "Kyrgyzstan", "Lao, People's Democratic Republic", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libyan Arab Jamahiriya", "Liechtenstein", "Lithuania", "Luxembourg", "Macau", "Macedonia, The Former Yugoslav Republic of", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Martinique", "Mauritania", "Mauritius", "Mayotte", "Mexico", "Micronesia, Federated States of", "Moldova, Republic of", "Monaco", "Mongolia", "Montserrat", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "Netherlands Antilles", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Norfolk Island", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn", "Poland", "Portugal", "Puerto Rico", "Qatar", "Reunion", "Romania", "Russian Federation", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Seychelles", "Sierra Leone", "Singapore", "Slovakia (Slovak Republic)", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Georgia and the South Sandwich Islands", "Spain", "Sri Lanka", "St. Helena", "St. Pierre and Miquelon", "Sudan", "Suriname", "Svalbard and Jan Mayen Islands", "Swaziland", "Sweden", "Switzerland", "Syrian Arab Republic", "Taiwan, Province of China", "Tajikistan", "Tanzania, United Republic of", "Thailand", "Togo", "Tokelau", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Turks and Caicos Islands", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "United States Minor Outlying Islands", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Virgin Islands (British)", "Virgin Islands (U.S.)", "Wallis and Futuna Islands", "Western Sahara", "Yemen", "Yugoslavia", "Zambia", "Zimbabwe");
+                     $countries = array("Afghanistan", "Aland Islands", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antarctica", "Antigua", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Barbuda", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia", "Botswana", "Bouvet Island", "Brazil", "British Indian Ocean Trty.", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi", "Caicos Islands", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Cayman Islands", "Central African Republic", "Chad", "Chile", "China", "Christmas Island", "Cocos (Keeling) Islands", "Colombia", "Comoros", "Congo", "Congo, Democratic Republic of the", "Cook Islands", "Costa Rica", "Cote d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Falkland Islands (Malvinas)", "Faroe Islands", "Fiji", "Finland", "France", "French Guiana", "French Polynesia", "French Southern Territories", "Futuna Islands", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe", "Guam", "Guatemala", "Guernsey", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Heard", "Herzegovina", "Holy See", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran (Islamic Republic of)", "Iraq", "Ireland", "Isle of Man", "Israel", "Italy", "Jamaica", "Jan Mayen Islands", "Japan", "Jersey", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea", "Korea (Democratic)", "Kuwait", "Kyrgyzstan", "Lao", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libyan Arab Jamahiriya", "Liechtenstein", "Lithuania", "Luxembourg", "Macao", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Martinique", "Mauritania", "Mauritius", "Mayotte", "McDonald Islands", "Mexico", "Micronesia", "Miquelon", "Moldova", "Monaco", "Mongolia", "Montenegro", "Montserrat", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "Netherlands Antilles", "Nevis", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Norfolk Island", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau", "Palestinian Territory, Occupied", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn", "Poland", "Portugal", "Principe", "Puerto Rico", "Qatar", "Reunion", "Romania", "Russian Federation", "Rwanda", "Saint Barthelemy", "Saint Helena", "Saint Kitts", "Saint Lucia", "Saint Martin (French part)", "Saint Pierre", "Saint Vincent", "Samoa", "San Marino", "Sao Tome", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Georgia", "South Sandwich Islands", "Spain", "Sri Lanka", "Sudan", "Suriname", "Svalbard", "Swaziland", "Sweden", "Switzerland", "Syrian Arab Republic", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "The Grenadines", "Timor-Leste", "Tobago", "Togo", "Tokelau", "Tonga", "Trinidad", "Tunisia", "Turkey", "Turkmenistan", "Turks Islands", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "US Minor Outlying Islands", "Uzbekistan", "Vanuatu", "Vatican City State", "Venezuela", "Vietnam", "Virgin Islands (British)", "Virgin Islands (US)", "Wallis", "Western Sahara", "Yemen", "Zambia", "Zimbabwe");
                      foreach ($countries as $country) {
                         echo "<option value='" . strtolower($country) . "'>" . strtolower($country) . "</option>";
                      }
@@ -433,10 +578,6 @@
                   <input type="text" name="religion" id="religion">
                   <?php // IDEA: later we'll make it rather in a different way. Our team gonna create PAGE for each indivual religion that exists on the whole world by asigning them to the `religion` category! DROPDOWN, LITTLE THUMBNAIL  ?>
                   <p>If you wanna share with our community in what you believe, just type it. (It's not obligatory)</p>
-               </div>
-               <div>
-                  <label for="website">website: </label>
-                  <input type="text" name="website" id="website">
                </div>
                <div><button type="submit" name="registerS3" id="registerS3">continue</button></div>
             </form>
