@@ -1,6 +1,6 @@
 // register step 1 form validation
 function validateRegisterS1() {
-   let letters = /[^a-zA-Z]/;
+   let letters = "[a-zA-ZąćęłńóśźżĄĘŁŃÓŚŹŻ]";
    let firstname = document.forms['registerS1Form']['firstname'].value;
    let lastname = document.forms['registerS1Form']['lastname'].value;
    let email = document.forms['registerS1Form']['email'].value;

@@ -1,6 +1,6 @@
 // register step 3 form validation
 function validateRegisterS3() {
-   let letters = /[^a-zA-Z]/;
+   let letters = "[a-zA-ZąćęłńóśźżĄĘŁŃÓŚŹŻ]";
    let numbers = /[^0-9]/;
 
    let language = document.forms['registerS3Form']['language'].value;

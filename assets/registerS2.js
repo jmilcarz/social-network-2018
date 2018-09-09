@@ -1,6 +1,6 @@
 // register step 2 form validation
 function validateRegisterS2() {
-   let letters = /[^a-zA-Z]/;
+   let letters = "[a-zA-ZąćęłńóśźżĄĘŁŃÓŚŹŻ]";
    let numbers = /[^0-9]/;
    let username = document.forms['registerS2Form']['username'].value;
    let phone = document.forms['registerS2Form']['phone'].value;
