@@ -14,13 +14,20 @@ $errors = [
    "Incorrect first name! (min: 2 max: 32 characters)",
    "Incorrect last name! (min: 2 max: 32 characters)",
    "Name can contain only letters!",
-   "Email address already taken!"
+   "Email address already taken!",
+   "Incorrect birthday's day!",
+   "Incorrect birthday's year!",
+   "Incorrect birthday's month!",
+   "Incorrect birthday!",
+   "29th of February is not a valid date!",
+   "This month has 30 days!",
+   "February has only 28 or 29 days!"
 ];
 // end -- registeration errors array
 
 // start -- register step1 validation
 if (isset($_POST['registerS1']) && isset($_POST['firstname']) && isset($_POST['lastname']) && isset($_POST['email']) && isset($_POST['password']) && isset($_POST['rpassword']) && isset($_POST['gender'])) {
-   if (empty($_POST['firstname']) || empty($_POST['lastname']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['rpassword']) || empty($_POST['gender'])) {
+   if (empty($_POST['firstname']) || empty($_POST['lastname']) || empty($_POST['email']) || empty($_POST['password']) || empty($_POST['rpassword']) || empty($_POST['gender']) || empty($_POST['birthD']) || empty($_POST['birthM']) || empty($_POST['birthY'])) {
       header("Location: register.php?step=1&error=1"); #1 = All fields must be filled out!
       exit();
    }
@@ -32,7 +39,42 @@ if (isset($_POST['registerS1']) && isset($_POST['firstname']) && isset($_POST['l
    $password = Security::check($_POST['password']);
    $rpassword = Security::check($_POST['rpassword']);
    $gender = Security::check($_POST['gender']);
+   $birthD = Security::check($_POST['birthD']);
+   $birthM = Security::check($_POST['birthM']);
+   $birthY = Security::check($_POST['birthY']);
    // end -- check post variables
+
+   // start -- check birthday
+   $days = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
+   $months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+   $years = [2004, 2003, 2002, 2001, 2000, 1999, 1998, 1997, 1996, 1995, 1994, 1993, 1992, 1991, 1990, 1989, 1988, 1987, 1986, 1985, 1984, 1983, 1982, 1981, 1980, 1979, 1978, 1977, 1976, 1975, 1974, 1973, 1972, 1971, 1970, 1969, 1968, 1967, 1966, 1965, 1964, 1963, 1962, 1961, 1960, 1959, 1958, 1957, 1956, 1955, 1954, 1953, 1952, 1951, 1950, 1949, 1948, 1947, 1946, 1945, 1944, 1943, 1942, 1941, 1940];
+   if ($birthD == "day" || $birthM == "month" || $birthY == "year") {
+      header("Location: register.php?step=1&error=15");
+      exit();
+   } else if (!in_array($birthD, $days)) {
+      header("Location: register.php?step=1&error=12");
+      exit();
+   } else if (!in_array($birthY, $years)) {
+      header("Location: register.php?step=1&error=13");
+      exit();
+   } else if (!in_array($birthM, $months)) {
+      header("Location: register.php?step=1&error=14");
+      exit();
+   } else if ($birthD == 29 && $birthM == "feb" && date('L', mktime(0, 0, 0, 1, 1, $birthY)) == 0) {
+      header("Location: register.php?step=1&error=16");
+      exit();
+   } else if ($birthD == 31 && ($birthM == "apr" || $birthM == "jun" || $birthM == "sep" || $birthM == "nov")) {
+      header("Location: register.php?step=1&error=17");
+      exit();
+   } else if (($birthD == 30 && $birthM == "feb") || ($birthD == 31 && $birthM == "feb")) {
+      header("Location: register.php?step=1&error=18");
+      exit();
+   }
+
+   $birthM = date('m',strtotime($birthM));
+   $birthD = $birthD < 10 ? 0 . $birthD : $birthD;
+   // end -- check birthday
+
    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
       header("Location: register.php?step=1&error=2"); #2 = Incorrect email address!
       exit();
@@ -73,7 +115,7 @@ if (isset($_POST['registerS1']) && isset($_POST['firstname']) && isset($_POST['l
    $_SESSION['email'] = $email;
    $_SESSION['password'] = password_hash($password, PASSWORD_DEFAULT);
    $_SESSION['gender'] = $gender;
-   $_SESSION['birthday'] = "0"; # TODO: add birthday script
+   $_SESSION['birthday'] = "$birthY-$birthM-$birthD";
 
    if ($gender == "male") {
       $_SESSION['sex'] = "m";
@@ -108,7 +150,15 @@ if (isset($_POST['registerS1']) && isset($_POST['firstname']) && isset($_POST['l
          else if ($error == 9)  { $error = $errors[8];  }
          else if ($error == 10) { $error = $errors[9];  }
          else if ($error == 11) { $error = $errors[10]; }
-
+         else if ($error == 12) { $error = $errors[11]; }
+         else if ($error == 13) { $error = $errors[12]; }
+         else if ($error == 14) { $error = $errors[13]; }
+         else if ($error == 15) { $error = $errors[14]; }
+         else if ($error == 16) { $error = $errors[15]; }
+         else if ($error == 17) { $error = $errors[16]; }
+         else if ($error == 18) { $error = $errors[17]; }
+         else if ($error == 19) { $error = $errors[18]; }
+         else if ($error == 20) { $error = $errors[19]; }
          echo $error;
       }
    ?></div>
@@ -127,6 +177,47 @@ if (isset($_POST['registerS1']) && isset($_POST['firstname']) && isset($_POST['l
       </div>
       <div>
          <label for="rpassword">repeat password: </label><input type="password" name="rpassword" value="" id="rpassword">
+      </div>
+      <div>
+         <select name="birthD" id="birthD">
+            <?php
+               $days = ['day', 1, 2, 3 ,4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
+               foreach ($days as $day) {
+                  echo '<option value="' . $day . '">' . $day . '</option>';
+               }
+            ?>
+         </select>
+         <select name="birthM" id="birthM">
+            <?php
+               $months = ['0' => ['month', 'month'], '1' => ['jan', 'january'], '2' => ['feb', 'february'], '3' => ['mar', 'march'], '4' => ['apr', 'april'], '5' => ['may', 'may'], '6' => ['jun', 'june'], '7' => ['jul', 'july'], '8' => ['aug', 'august'], '9' => ['sep', 'september'], '10' => ['oct', 'october'], '11' => ['nov', 'november'], '12' => ['dec', 'december']];
+               for($i = 0; $i <= count($months) - 1; $i++) {
+                  echo '<option value="' . $months[$i][0] . '">' .  $months[$i][1]. '</option>';
+               }
+            ?>
+         </select>
+         <select name="birthY" id="birthY">
+            <?php
+               $years = ['year',
+                  2004, 2003, 2002, 2001, 2000,
+                  1999, 1998, 1997, 1996, 1995,
+                  1994, 1993, 1992, 1991, 1990,
+                  1989, 1988, 1987, 1986, 1985,
+                  1984, 1983, 1982, 1981, 1980,
+                  1979, 1978, 1977, 1976, 1975,
+                  1974, 1973, 1972, 1971, 1970,
+                  1969, 1968, 1967, 1966, 1965,
+                  1964, 1963, 1962, 1961, 1960,
+                  1959, 1958, 1957, 1956, 1955,
+                  1954, 1953, 1952, 1951, 1950,
+                  1949, 1948, 1947, 1946, 1945,
+                  1944, 1943, 1942, 1941, 1940,
+               ];
+               foreach ($years as $year) {
+
+                  echo '<option value="' . $year . '">' . $year . '</option>';
+               }
+            ?>
+         </select>
       </div>
       <div>
          <input type="radio" name="gender" value="male" checked> Male <input type="radio" name="gender" value="female"> Female

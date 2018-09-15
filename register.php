@@ -6,16 +6,12 @@
    $normalize = array('Š'=>'S', 'š'=>'s', 'Ð'=>'Dj','Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ń'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U', 'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss','à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ń'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ü'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f', 'ă'=>'a', 'î'=>'i', 'â'=>'a', 'ș'=>'s', 'ț'=>'t', 'Ă'=>'A', 'Î'=>'I', 'Â'=>'A', 'Ș'=>'S', 'Ț'=>'T', 'ą'=>'a', 'Ą'=>'A', 'ę'=>'e', 'Ę'=>'E', 'ó'=>'o', 'Ó'=>'O', 'ł'=>'l', 'Ł'=>'L', 'ć'=>'c', 'Ć'=>'C', 'ś'=>'s', 'Ś'=>'S', 'ź'=>'z', 'Ź'=>'Z','ż'=>'z', 'Ż'=>'Z');
 
    /* registeration is 5-steps process
-      - step 1 - name, email, password, birthday, sex (płeć)
-      - step 2 - username, phone (2 factor authorization), bio, avatar, background-photo
-      - step 3 - language, country, city, religion, politics, orientation, website, etc. (I'll add later) (add to db)
-      - step 4 - find friends (recommended friends)
-      - step 5 - summary
+      - step 1 - name, email, password, birthday, gender (płeć)
+      - step 2 - language, username, phone (2 factor authorization), bio, avatar, background-photo, country, city
+      - step 3 - find friends (recommended friends by country and city)
+      - step 4 - summary
    */
    // TODO: username error doesnt appear
-
-   // TODO: √ loop through $countries array and check post country
-   // TODO: √ after this we'll prepare DB::query, but we won't insert values
    // TODO: then we'll make "find friends" page where user can find friends that live in the same country and city (ordered by city)
    // TODO: ? last page is the profile page with "edit view" turned on or something
 

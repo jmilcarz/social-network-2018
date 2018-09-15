@@ -8,7 +8,12 @@ function validateRegisterS1() {
    let rpassword = document.forms['registerS1Form']['rpassword'].value;
    let gender = document.forms['registerS1Form']['gender'].value;
 
-   if (firstname == "" || lastname == "" || email == "" || password == "" || rpassword == "") {
+   let birthD = document.forms['registerS1Form']['birthD'].value;
+   let birthM = document.forms['registerS1Form']['birthM'].value;
+   let birthY = document.forms['registerS1Form']['birthY'].value;
+
+
+   if (firstname == "" || lastname == "" || email == "" || password == "" || rpassword == "" || birthD == "" || birthM == "" || birthY == "") {
       $("#errors").html("<span>All fields must be filled!</span>");
       return false;
    }else if (!validateEmail(email)) {
