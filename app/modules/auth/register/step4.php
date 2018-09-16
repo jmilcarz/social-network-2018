@@ -38,6 +38,11 @@ $errors = [
    ?></div>
    <h2>People that you can know.</h2>
    <div id="recommendBox"></div>
+   <?php
+      $_SESSION['step'] = 5;
+      $_SESSION['step4_completed'] = true;
+   ?>
+   <a href="register.php?step=5">continue to summary</a>
 
 
    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>

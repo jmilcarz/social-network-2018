@@ -13,9 +13,6 @@
       - step 5 - summary
    */
 
-   // TODO: redisgn steps to match list above
-
-   // TODO: then we'll make "find friends" page where user can find friends that live in the same country and city (ordered by city)
    // TODO: ? last page is the profile page with "edit view" turned on or something
 
 

@@ -2,12 +2,19 @@
 if (isset($_POST['SENDuserid']) && isset($_POST['SENDloggedUserid'])) {
    require('../../classes/db.php');
    require('../../classes/security.php');
+   require('../../classes/friends.php');
    session_start();
    $userid = Security::check($_POST['SENDuserid']);
    $loggedUserid = Security::check($_POST['SENDloggedUserid']);
 
+   $status = Friends::sendFriendRequest($loggedUserid, $userid, "standard message");
 
-   // TODO: here send friend request
+   if ($status == false) {
+      echo 'dupa';
+      exit();
+   }else {
+      echo "hurra!";
+   }
 
    ### cta box ### ?>
    <form id="form<?php echo $userid; ?>">
@@ -30,11 +37,20 @@ if (isset($_POST['SENDuserid']) && isset($_POST['SENDloggedUserid'])) {
 if (isset($_POST['CANCELuserid']) && isset($_POST['CANCELloggedUserid'])) {
    require('../../classes/db.php');
    require('../../classes/security.php');
+   require('../../classes/friends.php');
    session_start();
    $userid = Security::check($_POST['CANCELuserid']);
    $loggedUserid = Security::check($_POST['CANCELloggedUserid']);
+   $requestid = DB::query('SELECT friendr_id FROM friend_requests WHERE (friendr_senderid = :senderid AND friendr_receiverid = :receiverid) OR (friendr_senderid = :receiverid AND friendr_receiverid = :senderid)', [':senderid' => $userid, ':receiverid' => $loggedUserid])[0]['friendr_id'];
 
-   // TODO: here cancel friend request
+   $status = Friends::cancelFriendRequest($requestid, $loggedUserid, $userid);
+
+   if ($status == false) {
+      echo 'dupa';
+      exit();
+   }else {
+      echo "hurra!";
+   }
 
    ### cta box ### ?>
    <form id="form<?php echo $userid; ?>">
