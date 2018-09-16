@@ -7,16 +7,17 @@
 
    /* registeration is 5-steps process
       - step 1 - name, email, password, birthday, gender (płeć)
-      - step 2 - language, username, phone (2 factor authorization), bio, avatar, background-photo, country, city
-      - step 3 - find friends (recommended friends by country and city)
-      - step 4 - summary
+      - step 2 - username, phone (2 factor authorization), bio, avatar, background-photo
+      - step 3 - language, country, city
+      - step 4 - find friends (recommended friends by country and city)
+      - step 5 - summary
    */
-   // TODO: username error doesnt appear
+
+   // TODO: redisgn steps to match list above
+
    // TODO: then we'll make "find friends" page where user can find friends that live in the same country and city (ordered by city)
    // TODO: ? last page is the profile page with "edit view" turned on or something
 
-   // TODO: ! create birthday selects
-   // TODO: ? later add school & languages, but later veeery later
 
    // start -- session setup
    session_start();

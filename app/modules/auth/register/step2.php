@@ -49,8 +49,8 @@ if (isset($_POST['registerS2']) && isset($_POST['username'])) {
    if ((strlen($username) <= 3) || (strlen($username) >= 32)) {
       header("Location: register.php?step=2&error=2"); #2 = Incorrect username! (min: 3 max: 32 characters)
       exit();
-   }if (DB::query('SELECT user_username FROM users WHERE user_username = :username', [':username' => $username])[0]['user_username']) {
-      header("Location: register.php?step=22&error=11"); #8 = Username already taken!
+   }else if (DB::query('SELECT user_username FROM users WHERE user_username = :username', [':username' => $username])[0]['user_username']) {
+      header("Location: register.php?step=2&error=8"); #8 = Username already taken!
       exit();
    }else if (!preg_match("/[a-z0-9.]/i", $username)) {
       header("Location: register.php?step=2&error=3"); #3 = Username can contain only letters & numbers!
@@ -103,6 +103,10 @@ if (isset($_POST['registerS2']) && isset($_POST['username'])) {
       $_SESSION['backgroundphoto'] = "no-photo";
    }else {
       $_SESSION['backgroundphoto'] = $hashed_backgroundphoto_name;
+   }
+
+   if ($_SESSION['phone'] == "666") {
+      $_SESSION['phone'] = 0;
    }
 
    $_SESSION['step1_completed'] = true;
