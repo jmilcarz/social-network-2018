@@ -1,10 +1,16 @@
-<?php
-   require('app/classes/app.php');
+<?php require('app/autoload.php');
+
+if (!Auth::loggedin()) {
+   echo 'ggg';
+}else {
+   // TODO: timeline
+}
+
 ?>
 <!DOCTYPE html>
-<html lang="<?= $app->lang ?>">
+<html lang="en">
 <head>
-   <?php require_once('app/incs/head-metas.inc.php'); ?>
+   <?php require('app/incs/head-metas.inc.php'); ?>
    <title>Social Network</title>
 </head>
 <body>

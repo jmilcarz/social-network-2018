@@ -52,7 +52,6 @@ if (isset($_POST['registerS3'])) {
    $_SESSION['city'] = $city;
 
    DB::query('INSERT INTO users VALUES (\'\', :username, :firstname, :lastname, :name, :email, :phone, :password, :birthday, :sex, :avatar, :backgroundphoto)', [':username' => $_SESSION['username'], ':firstname' => $_SESSION['firstname'], ':lastname' => $_SESSION['lastname'], ':name' => $_SESSION['name'], ':email' => $_SESSION['email'], ':phone' => $_SESSION['phone'], ':password' => $_SESSION['password'], ':birthday' => $_SESSION['birthday'], ':sex' => $_SESSION['sex'], ':avatar' => $_SESSION['avatar'], ':backgroundphoto' => $_SESSION['backgroundphoto']]);
-   echo "works!";
    $_SESSION['userid'] = DB::query('SELECT id FROM users WHERE user_username = :username AND user_email = :email AND user_password = :password', [':username' => $_SESSION['username'], ':email' => $_SESSION['email'], ':password' => $_SESSION['password']])[0]['id'];
    DB::query('INSERT INTO user_info VALUES (\'\', :userid, :lang, :country, :city, :bio, :gender, :religion)', [':userid' => $_SESSION['userid'], ':lang' => $_SESSION['language'], ':country' => $_SESSION['country'], ':city' => $_SESSION['city'], ':bio' => $_SESSION['bio'], ':gender' => $_SESSION['gender'], ':religion' => $_SESSION['religion']]);
 
@@ -88,7 +87,6 @@ if (isset($_POST['registerS3'])) {
       }
    ?></div>
    <form action="register.php?step=3" method="post" onsubmit="return validateRegisterS3()" name="registerS3Form">
-      <?php // NOTE: language, country, city, religion, politics, orientation, website, etc. ?>
       <div>
          <label for="language">language: </label>
          <select name="language" id="language">

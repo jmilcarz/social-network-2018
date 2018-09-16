@@ -1,8 +1,12 @@
 <?php
    ### this code will work only with requried files! ###
-   require('app/classes/app.php');
-   require('app/classes/security.php');
-   require('app/classes/auth.php');
+   require('app/autoload.php');
+
+   if (Auth::loggedin()) {
+      header('Location: index.php');
+      exit();
+   }
+
    $normalize = array('Š'=>'S', 'š'=>'s', 'Ð'=>'Dj','Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ń'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U', 'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss','à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ń'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ü'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f', 'ă'=>'a', 'î'=>'i', 'â'=>'a', 'ș'=>'s', 'ț'=>'t', 'Ă'=>'A', 'Î'=>'I', 'Â'=>'A', 'Ș'=>'S', 'Ț'=>'T', 'ą'=>'a', 'Ą'=>'A', 'ę'=>'e', 'Ę'=>'E', 'ó'=>'o', 'Ó'=>'O', 'ł'=>'l', 'Ł'=>'L', 'ć'=>'c', 'Ć'=>'C', 'ś'=>'s', 'Ś'=>'S', 'ź'=>'z', 'Ź'=>'Z','ż'=>'z', 'Ż'=>'Z');
 
    /* registeration is 5-steps process
@@ -13,23 +17,20 @@
       - step 5 - summary
    */
 
-   // TODO: ? last page is the profile page with "edit view" turned on or something
-
-
    // start -- session setup
    session_start();
    // session_destroy();
    $_SESSION['step'] = 1;
 
-   if (($_SESSION['step1_completed'] == false) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
+   if (($_SESSION['step1_completed'] == false) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
       $_SESSION['step'] = 1;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
       $_SESSION['step'] = 2;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
       $_SESSION['step'] = 3;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == false)) {
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
       $_SESSION['step'] = 4;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == true)) {
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == true) && ($_SESSION['step5_completed'] == false)) {
       $_SESSION['step'] = 5;
    }
    // end -- session setup
@@ -74,6 +75,12 @@
          require('./app/modules/auth/register/step4.php');
          exit();
       } # $step == 4 && $_SESSION['step'] == 4
+
+      if ($step == 5 && $_SESSION['step'] == 5) {
+         require('./app/modules/auth/register/step5.php');
+         exit();
+      } # $step == 5 && $_SESSION['step'] == 5
+
    }else {
       header("Location: register.php?step=1");
       exit();
