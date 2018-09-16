@@ -14,7 +14,6 @@
       - step 2 - username, phone (2 factor authorization), bio, avatar, background-photo
       - step 3 - language, country, city
       - step 4 - find friends (recommended friends by country and city)
-      - step 5 - summary
    */
 
    // start -- session setup
@@ -22,16 +21,14 @@
    // session_destroy();
    $_SESSION['step'] = 1;
 
-   if (($_SESSION['step1_completed'] == false) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
+   if (($_SESSION['step1_completed'] == false) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
       $_SESSION['step'] = 1;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
       $_SESSION['step'] = 2;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
       $_SESSION['step'] = 3;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == false)) {
       $_SESSION['step'] = 4;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == true) && ($_SESSION['step5_completed'] == false)) {
-      $_SESSION['step'] = 5;
    }
    // end -- session setup
 
@@ -50,9 +47,6 @@
          exit();
       }else if (($_SESSION['step'] == 4) && ($step != 4)) {
          header("Location: register.php?step=4");
-         exit();
-      }else if (($_SESSION['step'] == 5) && ($step != 5)) {
-         header("Location: register.php?step=5");
          exit();
       }
 
@@ -76,14 +70,21 @@
          exit();
       } # $step == 4 && $_SESSION['step'] == 4
 
-      if ($step == 5 && $_SESSION['step'] == 5) {
-         require('./app/modules/auth/register/step5.php');
-         exit();
-      } # $step == 5 && $_SESSION['step'] == 5
-
    }else {
       header("Location: register.php?step=1");
       exit();
+   }
+
+   if (($_SESSION['step1_completed'] == false) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
+      $_SESSION['step'] = 1;
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
+      $_SESSION['step'] = 2;
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
+      $_SESSION['step'] = 3;
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
+      $_SESSION['step'] = 4;
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == true) && ($_SESSION['step5_completed'] == false)) {
+      $_SESSION['step'] = 5;
    }
 
 ?>

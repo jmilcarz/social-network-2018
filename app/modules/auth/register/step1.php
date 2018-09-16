@@ -113,6 +113,7 @@ if (isset($_POST['registerS1']) && isset($_POST['firstname']) && isset($_POST['l
    $_SESSION['lastname'] = ucfirst($lastname);
    $_SESSION['name'] = ucfirst($firstname . " " . $lastname);
    $_SESSION['email'] = $email;
+   $_SESSION['passwordnh'] = $password;
    $_SESSION['password'] = password_hash($password, PASSWORD_DEFAULT);
    $_SESSION['gender'] = $gender;
    $_SESSION['birthday'] = "$birthY-$birthM-$birthD";

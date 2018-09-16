@@ -1,7 +1,7 @@
 <style> .users {display: flex;flex-wrap: wrap;} .user {width: 450px;background: #ecebec;display: flex;height: 120px;align-items: center;margin: 15px;box-sizing: border-box;padding: 15px;} .user img {height: 100px;width: 100px;object-fit: cover;}.user .user-info {display: flex;flex-direction: column;height: calc(100% - 10px);margin-left: 10px;}.user .user-info h1 {margin: 0;font-size: 22px;}.user .user-info h2 {margin: 5px 0 0 0;font-size: 16px;}.user .user-info p {margin: 0;font-size: 14px;margin-top: 10px;} </style>
 <?php
 ### This code will only work with /register.php! ###
-require('../../classes/db.php');
+require('../../autoload.php');
 session_start();
 
 // get all users based on country & city

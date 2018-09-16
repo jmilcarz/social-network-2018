@@ -4,13 +4,9 @@
 $_SESSION['step4_completed'] = false;
 
 if (isset($_POST['procceedtostep5'])) {
-   $_SESSION['step1_completed'] = true;
-   $_SESSION['step2_completed'] = true;
-   $_SESSION['step3_completed'] = true;
-   $_SESSION['step4_completed'] = true;
-   $_SESSION['step'] = 5;
-   header('Location: register.php?step=5');
-   exit();
+
+   session_destroy();
+   Auth::login($_SESSION['email'], $_SESSION['passwordnh']);
 }
 
 ?>

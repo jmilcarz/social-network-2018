@@ -1,13 +1,14 @@
 $(function () {
    $.ajax({
        type: "POST",
-       url: './app/api/auth/recommend-users.php',
-       data: {users: 'Wayne'},
+       url: 'app/api/auth/recommend-users.php',
+       data: {users: 'Kuba'},
        success: function(data){
            $('#recommendBox').html(data);
        }
    });
    });
+
 
 function errorHandler(jqXHR, exception) {
    if (jqXHR.status === 0) {

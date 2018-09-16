@@ -64,7 +64,7 @@ if (isset($_POST['registerS2']) && isset($_POST['username'])) {
 
    if ($avatar != "nothing") {
       $hashed_avatar_name = md5(basename($_FILES['avatar']['name'])) . "." . substr($_FILES['avatar']['type'], 6);
-      $uploaddir = '/Applications/MAMP/htdocs/facebook/storage/pictures/⁩';
+      $uploaddir = '/Applications/XAMPP/xamppfiles/htdocs/facebook/storage/pictures/⁩';
       $uploadfile = $uploaddir . $hashed_avatar_name;
 
       if (move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadfile)) {
@@ -77,7 +77,7 @@ if (isset($_POST['registerS2']) && isset($_POST['username'])) {
 
    if ($backgroundphoto != "nothing") {
       $hashed_backgroundphoto_name = md5(basename($_FILES['backgroundphoto']['name'])) . "." . substr($_FILES['backgroundphoto']['type'], 6);
-      $uploaddir = '/Applications/MAMP/htdocs/facebook/storage/pictures/⁩';
+      $uploaddir = '/facebook/storage/pictures/⁩';
       $uploadfile = $uploaddir . $hashed_backgroundphoto_name;
 
       if (move_uploaded_file($_FILES['backgroundphoto']['tmp_name'], $uploadfile)) {
