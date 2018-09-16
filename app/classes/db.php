@@ -2,7 +2,7 @@
 
 class DB {
    private static function connect() {
-      $pdo = new PDO('mysql:host=localhost;dbname=facebook;charset=utf8mb4', 'root', 'root');
+      $pdo = new PDO('mysql:host=localhost;dbname=facebook;charset=utf8mb4', 'root', '');
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       return $pdo;
    }

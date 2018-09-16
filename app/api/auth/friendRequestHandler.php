@@ -10,10 +10,7 @@ if (isset($_POST['SENDuserid']) && isset($_POST['SENDloggedUserid'])) {
    $status = Friends::sendFriendRequest($loggedUserid, $userid, "standard message");
 
    if ($status == false) {
-      echo 'dupa';
       exit();
-   }else {
-      echo "hurra!";
    }
 
    ### cta box ### ?>
@@ -46,10 +43,7 @@ if (isset($_POST['CANCELuserid']) && isset($_POST['CANCELloggedUserid'])) {
    $status = Friends::cancelFriendRequest($requestid, $loggedUserid, $userid);
 
    if ($status == false) {
-      echo 'dupa';
       exit();
-   }else {
-      echo "hurra!";
    }
 
    ### cta box ### ?>

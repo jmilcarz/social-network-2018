@@ -6,9 +6,7 @@ session_start();
 
 // get all users based on country & city
 $users = DB::query('SELECT users.id AS user_id, user_username, user_name, user_avatar, user_backgroundphoto, useri_country, useri_city FROM users, user_info WHERE (user_email <> :email AND user_password <> :password) AND useri_user_id = users.id AND useri_country = :country ORDER BY useri_city', [':password' =>$_SESSION['password'], ':email' => $_SESSION['email'],':country' => $_SESSION['country']]);
-// echo '<pre>';
-// print_r($users);
-// echo '</pre>';
+
 ?><div class="users">
 <?php foreach ($users as $user) { ?>
    <div class="user">
@@ -24,7 +22,6 @@ $users = DB::query('SELECT users.id AS user_id, user_username, user_name, user_a
          <h2>@<?php echo $user['user_username']; ?></h2>
          <p><?php echo $user['useri_city'] . ', ' . $user['useri_country']; ?></p>
       </div>
-      <?php // TODO: current friend request status!!!! ?>
       <div class="cta" id= "ctaBoxId<?php echo $user['user_id']; ?>">
          <?php
             if (DB::query('SELECT friendr_id FROM friend_requests WHERE (friendr_senderid = :senderid AND friendr_receiverid = :receiverid) OR (friendr_senderid = :receiverid AND friendr_receiverid = :senderid)', [':senderid' => $_SESSION['userid'], ':receiverid' => $user['user_id']])[0]['friendr_id']) {

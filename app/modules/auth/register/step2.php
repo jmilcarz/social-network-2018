@@ -21,7 +21,6 @@ if (isset($_POST['registerS2']) && isset($_POST['username'])) {
       header("Location: register.php?step=2&error=1"); #1 = Username field must be filled out!
       exit();
    }
-   // FIXME: phone number is a string! must change that!
    // start -- check post variables
    $username = Security::check($_POST['username']);
    if (empty($_POST['phone'])) {
