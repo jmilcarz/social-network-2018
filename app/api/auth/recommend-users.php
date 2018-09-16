@@ -67,7 +67,8 @@ $users = DB::query('SELECT users.id AS user_id, user_username, user_name, user_a
          <h2>@<?php echo $user['user_username']; ?></h2>
          <p><?php echo $user['useri_city'] . ', ' . $user['useri_country']; ?></p>
       </div>
-      <div class="cta">
+      <?php // TODO: current friend request status!!!! ?>
+      <div class="cta" id= "ctaBoxId<?php echo $user['user_id']; ?>">
          <form id="form<?php echo $user['user_id']; ?>">
             <button type="submit" id="send<?php echo $user['user_id']; ?>">add to friends</button>
          </form>
@@ -76,19 +77,11 @@ $users = DB::query('SELECT users.id AS user_id, user_username, user_name, user_a
                e.preventDefault();
                let userid = <?php echo $user['user_id']; ?>;
                let loggedUserid = <?php echo $_SESSION['userid']; ?>;
-               // $.ajax({
-               //     type: "POST",
-               //     url: './app/api/auth/sendFriendRequestRegister.php',
-               //     data: {userid: user_id, logged_userid: loggedUserid},
-               //     success: function(data){
-               //         $('#form<?php echo $user['user_id']; ?>').html(data);
-               //     }
-               // });
-                  $.post( "./app/api/auth/sendFriendRequestRegister.php", { userid: userid, loggedUserid: loggedUserid })
-                  .done(function( data ) {
-                     $('#form<?php echo $user['user_id']; ?>').html(data);
-                  });
+               $.post( "./app/api/auth/friendRequestHandler.php", { SENDuserid: userid, SENDloggedUserid: loggedUserid })
+               .done(function( data ) {
+                  $('#ctaBoxId<?php echo $user['user_id']; ?>').html(data);
                });
+            });
          </script>
       </div>
    </div>

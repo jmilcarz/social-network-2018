@@ -36,7 +36,7 @@ $errors = [
          echo $error;
       }
    ?></div>
-
+   <h2>People that you can know.</h2>
    <div id="recommendBox"></div>
 
 
