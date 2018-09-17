@@ -1,8 +1,6 @@
 <?php
 if (isset($_POST['SENDuserid']) && isset($_POST['SENDloggedUserid'])) {
-   require('../../classes/db.php');
-   require('../../classes/security.php');
-   require('../../classes/friends.php');
+   require('../../autoload.php');
    session_start();
    $userid = Security::check($_POST['SENDuserid']);
    $loggedUserid = Security::check($_POST['SENDloggedUserid']);

@@ -2,6 +2,7 @@
 
 class Auth {
    public static $system_cookie_name = 'HONET';
+   public static $error = "";
 
    public function logout() {
       DB::query('DELETE FROM login_tokens WHERE logint_userid=:userid', array(':userid'=>self::loggedin()));
@@ -74,4 +75,48 @@ class Auth {
          }else {header('Location: login.php?error=2'); exit();}
       }
    }
+
+   public function forgotPassword($email) {
+      if (strpos($email, '@') !== false) {
+         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $cstrong = True;
+            $token = bin2hex(openssl_random_pseudo_bytes(64, $cstrong));
+            $user_id = DB::query('SELECT id FROM users WHERE user_email=:email', [':email'=>$email])[0]['id'];
+            DB::query('INSERT INTO password_tokens VALUES (\'\', :token, :user_id)', [':token'=>sha1($token), ':user_id'=>$user_id]);
+            # '
+            // Mail::sendMail('Zresetuj hasło.', "<a href='http://localhost/facebook/change-password.php?token=$token'>http://localhost/social-network/change-password.php?token=$token</a>", $email);
+
+            self::$error = 'Sprawdź swoją pocztę.';
+         } else {
+            // self::$error = "Adres jest niepoprawny!";
+            header('Location: forgot-password.php?error=2'); exit();
+         }
+      } else {
+         // self::$error = "Adres email musi zawierać znak @ (małpy)!";
+         header('Location: forgot-password.php?error=2'); exit();
+      }
+   }
+
+   public function changePassword($opass, $npass, $rnpass) {
+      if (password_verify($opass, DB::query('SELECT user_password FROM users WHERE user_user_id=:userid', [':userid'=>self::loggedin()])[0]['user_password'])) {
+         if ($npass == $rnpass) {
+            if (strlen($npass) >= 8 && strlen($npass) <= 64) {
+               DB::query('UPDATE users SET user_password=:newpassword WHERE user_user_id=:userid', array(':newpassword'=>password_hash($npass, PASSWORD_BCRYPT), ':userid'=>self::loggedin()));
+               self::logout();
+               echo 'Password changed successfully!';
+            }
+         }else {self::$error = "Podane hasła nie są identyczne!";}
+      }else {self::$error = "Niepoprawne stare hasło!";}
+   }
+
+   public function changePasswordToken($npass, $rnpass) {
+      if ($npass == $rnpass) {
+         if (strlen($npass) >= 8 && strlen($npass) <= 64) {
+            DB::query('UPDATE users SET user_password=:newpassword WHERE user_user_id=:userid', array(':newpassword'=>password_hash($npass, PASSWORD_BCRYPT), ':userid'=>self::loggedin()));
+            echo 'Password changed successfully!';
+            DB::query('DELETE FROM password_tokens WHERE passwordt_userid=:userid', array(':userid'=>self::loggedin()));
+         }
+      }else {self::$error = "Podane hasła nie są identyczne!";}
+   }
+
 }

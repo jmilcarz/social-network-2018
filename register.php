@@ -21,26 +21,23 @@
    // session_destroy();
    $_SESSION['step'] = 1;
    # // TODO: let's try something with try catch block to delete error messages
-   if (!isset($_POST['step1_completed'])) {
+   if (!isset($_SESSION['step1_completed'])) {
       $_SESSION['step1_completed'] = false;
       $_SESSION['step2_completed'] = false;
       $_SESSION['step3_completed'] = false;
       $_SESSION['step4_completed'] = false;
    }
 
-   try {
-      if (($_SESSION['step1_completed'] == false) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
-         $_SESSION['step'] = 1;
-      }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
-         $_SESSION['step'] = 2;
-      }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
-         $_SESSION['step'] = 3;
-      }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == false)) {
-         $_SESSION['step'] = 4;
-      }
-   } catch (\Exception $e) {
-      echo " ";
+   if (($_SESSION['step1_completed'] == false) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
+      $_SESSION['step'] = 1;
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
+      $_SESSION['step'] = 2;
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
+      $_SESSION['step'] = 3;
+   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == false)) {
+      $_SESSION['step'] = 4;
    }
+
 
    // end -- session setup
 
@@ -85,18 +82,6 @@
    }else {
       header("Location: register.php?step=1");
       exit();
-   }
-
-   if (($_SESSION['step1_completed'] == false) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
-      $_SESSION['step'] = 1;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
-      $_SESSION['step'] = 2;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
-      $_SESSION['step'] = 3;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == false) && ($_SESSION['step5_completed'] == false)) {
-      $_SESSION['step'] = 4;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == true) && ($_SESSION['step5_completed'] == false)) {
-      $_SESSION['step'] = 5;
    }
 
 ?>
