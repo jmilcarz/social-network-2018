@@ -20,16 +20,28 @@
    session_start();
    // session_destroy();
    $_SESSION['step'] = 1;
-
-   if (($_SESSION['step1_completed'] == false) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
-      $_SESSION['step'] = 1;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
-      $_SESSION['step'] = 2;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
-      $_SESSION['step'] = 3;
-   }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == false)) {
-      $_SESSION['step'] = 4;
+   # // TODO: let's try something with try catch block to delete error messages
+   if (!isset($_POST['step1_completed'])) {
+      $_SESSION['step1_completed'] = false;
+      $_SESSION['step2_completed'] = false;
+      $_SESSION['step3_completed'] = false;
+      $_SESSION['step4_completed'] = false;
    }
+
+   try {
+      if (($_SESSION['step1_completed'] == false) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
+         $_SESSION['step'] = 1;
+      }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == false) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
+         $_SESSION['step'] = 2;
+      }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == false) && ($_SESSION['step4_completed'] == false)) {
+         $_SESSION['step'] = 3;
+      }else if (($_SESSION['step1_completed'] == true) && ($_SESSION['step2_completed'] == true) && ($_SESSION['step3_completed'] == true) && ($_SESSION['step4_completed'] == false)) {
+         $_SESSION['step'] = 4;
+      }
+   } catch (\Exception $e) {
+      echo " ";
+   }
+
    // end -- session setup
 
    if (isset($_GET['step']) && is_numeric($_GET['step'])) {
