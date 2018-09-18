@@ -31,6 +31,8 @@ if (isset($_GET['u'])) {
    }
 
    if (Auth::loggedin()) {
+
+      # friends
       if (isset($_POST['sendFR'])) {
          $message = $_POST['sendFRMessage'];
          Friends::sendFriendRequest(Auth::loggedin(), $profileUser['id'], $message);
@@ -53,6 +55,20 @@ if (isset($_GET['u'])) {
       if (isset($_POST['deleteFR'])) {
          Friends::deleteFriend(Auth::loggedin(), $profileUser['id']);
       }
+
+      # followers
+      if (DB::query('SELECT friends_id FROM friends WHERE (friends_userid = :userid AND friends_friendid = :friendid) OR (friends_userid = :friendid AND friends_friendid = :userid)', [':userid' => Auth::loggedin(), ':friendid' => $profileUser['id']])) {
+
+         if (isset($_POST['startFollowing'])) {
+            Follow::startFollowing(Auth::loggedin(), $profileUser['id'], "1");
+         }
+
+         if (isset($_POST['stopFollowing'])) {
+            Follow::stopFollowing(Auth::loggedin(), $profileUser['id']);
+         }
+
+      }
+
    }
 
 } else {
@@ -94,10 +110,19 @@ if (isset($_GET['u'])) {
    <hr>
    <?php if (Auth::loggedin() && $profileUser['id'] != Auth::loggedin()) { ?>
    <div class="cta" id= "ctaBoxId">
-      <?php if (DB::query('SELECT friends_id FROM friends WHERE (friends_userid = :userid AND friends_friendid = :friendid) OR (friends_userid = :friendid AND friends_friendid = :userid)', [':userid' => Auth::loggedin(), ':friendid' => $profileUser['id']])) { ?>
+      <?php if (DB::query('SELECT friends_id FROM friends WHERE (friends_userid = :userid AND friends_friendid = :friendid) OR (friends_userid = :friendid AND friends_friendid = :userid)', [':userid' => Auth::loggedin(), ':friendid' => $profileUser['id']])[0]['friends_id']) { ?>
          <form method="post" action="">
             <button type="submit" name="deleteFR">delete from friends</button>
          </form>
+         <?php if (!DB::query('SELECT followers_id FROM followers WHERE followers_userid = :userid AND followers_followerid = :followerid AND followers_type = :type', [':userid' => Auth::loggedin(), ':followerid' => $profileUser['id'], ':type' => 1])[0]['followers_id']) { ?>
+            <form method="post" action="">
+               <button type="submit" name="startFollowing">follow</button>
+            </form>
+         <?php } else { ?>
+            <form method="post" action="">
+               <button type="submit" name="stopFollowing">unfollow</button>
+            </form>
+         <?php } ?>
       <?php } else { ?>
 
          <?php if (DB::query('SELECT friendr_id FROM friend_requests WHERE friendr_senderid = :senderid AND friendr_receiverid = :receiverid', [':senderid' => Auth::loggedin(), ':receiverid' => $profileUser['id']])[0]['friendr_id']) { ?>
