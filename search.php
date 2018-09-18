@@ -9,7 +9,7 @@ if (isset($_GET['q'])) {
    $pdo = new PDO('mysql:host=localhost;dbname=newfb;charset=utf8mb4', 'root', '', array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8mb4'"));
 
    $query = Security::check($_GET['q']);
-   if (strlen($query) <= 2) {
+   if (strlen($query) < 2) {
       echo 'query is too short!';
       exit();
    }
@@ -29,7 +29,7 @@ if (isset($_GET['q'])) {
    }
 
 
-   $results = $pdo->prepare("SELECT users.user_name, users.user_name, users.user_avatar, users.user_username FROM users WHERE $construct ORDER BY users.id");
+   $results = $pdo->prepare("SELECT users.user_name, users.user_name, users.user_avatar, users.user_username FROM users WHERE $construct ORDER BY user_name DESC");
    $results->execute($params);
 
    ?>
@@ -38,14 +38,39 @@ if (isset($_GET['q'])) {
       <head>
          <?php require('app/incs/head-metas.inc.php'); ?>
          <title><?php echo $query; ?> - | search</title>
+         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
       </head>
       <body>
          <h1>Results for: <?php echo $query; ?></h1>
-         <form action="search.php" method="get">
-            <input type="text" name="q" placeholder="Search...">
+         <form id="search-form">
+            <input type="text" placeholder="Search" id="search-input">
             <button type="submit">-></button>
          </form>
-         <div class="results">
+         <script>
+            $('#search-form').submit(function(e) {
+               e.preventDefault();
+               let searchphrase = $("#search-input").val();
+               $.ajax({
+                  url: "app/api/search.php",
+                  type: 'POST',
+                  async: true,
+                  cache: true,
+                  timeout: 30000,
+                  data: {query: searchphrase},
+                  beforeSend: function() {
+                     $('#results').html("Loading");
+                  },
+                  error: function() {
+                     $('#results').html("Error");
+                  },
+                  success: function(data) {
+                     $('#results').html(data);
+                  }
+               });
+            });
+         </script>
+         <div id="results">
             <?php
 
             if ($results->rowCount() == 0) {
@@ -80,12 +105,35 @@ if (isset($_GET['q'])) {
 <head>
    <?php require('app/incs/head-metas.inc.php'); ?>
    <title>Search</title>
+   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
 </head>
 <body>
    <h1>Search</h1>
-   <form action="search.php" method="get">
-      <input type="text" name="q" placeholder="Search...">
+   <form id="search-form">
+      <input type="text" placeholder="Search" id="search-input">
       <button type="submit">-></button>
    </form>
+   <script>
+      $('#search-form').submit(function(e) {
+         e.preventDefault();
+         let searchphrase = $("#search-input").val();
+         $.ajax({
+            url: "app/api/search.php",
+            type: 'POST',
+            async: false,
+            cache: false,
+            timeout: 30000,
+            data: {query: searchphrase},
+            error: function() {
+               $('#results').html("Error");
+            },
+            success: function(data) {
+               $('#results').html(data);
+            }
+         });
+      });
+   </script>
+   <div id="results"></div>
 </body>
 </html>
