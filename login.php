@@ -25,11 +25,16 @@
    <a href="index.php">home page</a>
    <div id="errors">
       <?php
-      if (isset($_GET['error'])) {
-         $error = Security::check($_GET['error']);
-
-         echo $error;
-      }
+         if (isset($_GET['error'])) {
+            $error = Security::check($_GET['error']);
+            if ($error == "1") {
+               echo 'Incorrect password.';
+            } else if ($error == "2") {
+               echo 'Email doesn\'t exists!';
+            } else if ($error == "3") {
+               echo 'Username doesn\'t exists!';
+            }
+         }
       ?>
    </div>
    <form action="login.php" method="post">
