@@ -124,7 +124,7 @@ class Auth {
          if (strlen($npass) >= 8 && strlen($npass) <= 64) {
             DB::query('UPDATE users SET user_password=:newpassword WHERE id=:userid', [':newpassword'=>password_hash($npass, PASSWORD_BCRYPT), ':userid'=>$userid]);
             echo 'Password changed successfully!';
-            DB::query('DELETE FROM password_tokens WHERE passwordt_token=:token', [':token'=>$token]);
+            DB::query('DELETE FROM password_tokens WHERE passwordt_userid=:userid', [':userid'=>$userid]);
          }
       }else {self::$error = "Podane hasła nie są identyczne!";}
    }
