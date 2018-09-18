@@ -30,7 +30,6 @@ if (Auth::loggedin()) {
      <title>change password</title>
 </head>
 <body>
-   <?= Auth::$error; ?>
    <?php
       if (isset($_GET['error'])) {
          $error = Security::check($_GET['error']);

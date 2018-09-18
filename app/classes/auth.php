@@ -86,9 +86,8 @@ class Auth {
                $bdate = date('Y-m-d H:i:s');
                DB::query('INSERT INTO password_tokens VALUES (\'\', :token, :user_id, :bdate)', [':token'=>sha1($token), ':user_id'=>$user_id, ':bdate'=>$bdate]);
                # '
+               // TODO: connect to mailing system
                // Mail::sendMail('Zresetuj hasło.', "<a href='http://localhost/facebook/change-password.php?token=$token'>http://localhost/social-network/change-password.php?token=$token</a>", $email);
-               header("Location: change-password.php?token=$token");
-               exit();
                header('Location: forgot-password.php?error=1'); exit();
             } else {
                header('Location: forgot-password.php?error=2'); exit();
