@@ -30,9 +30,7 @@ if (isset($_POST['SENDuserid']) && isset($_POST['SENDloggedUserid'])) {
 }
 
 if (isset($_POST['CANCELuserid']) && isset($_POST['CANCELloggedUserid'])) {
-   require('../../classes/db.php');
-   require('../../classes/security.php');
-   require('../../classes/friends.php');
+   require('../../autoload.php');
    session_start();
    $userid = Security::check($_POST['CANCELuserid']);
    $loggedUserid = Security::check($_POST['CANCELloggedUserid']);
