@@ -16,7 +16,6 @@ if (!Auth::loggedin()) {
          <?php
          if (isset($_GET['error'])) {
             $error = Security::check($_GET['error']);
-
             echo $error;
          }
          ?>

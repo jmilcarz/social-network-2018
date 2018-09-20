@@ -3,7 +3,7 @@
    require('app/autoload.php');
 
    if (Auth::loggedin()) {
-      header('Location: index.php');
+      header('Location: ' . App::$APP_DIR . 'index.php');
       exit();
    }
 

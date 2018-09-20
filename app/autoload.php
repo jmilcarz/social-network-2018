@@ -10,6 +10,3 @@ function __autoload($class_name) {
 if (isset($_POST['logoutbtn'])) {
      Auth::logout();
 }
-
-
-?>

@@ -3,7 +3,7 @@
    require('app/autoload.php');
 
    if (Auth::loggedin()) {
-      header('Location: index.php');
+      header('Location: ' . App::$APP_DIR . 'index.php');
       exit();
    }
 
@@ -46,16 +46,16 @@
 
       // start -- user cheated by trying jump over step
       if (($_SESSION['step'] == 1) && ($step != 1)) {
-         header("Location: register.php?step=1");
+         header("Location: " . App::$APP_DIR . "register.php?step=1");
          exit();
       }else if (($_SESSION['step'] == 2) && ($step != 2)) {
-         header("Location: register.php?step=2");
+         header("Location: " . App::$APP_DIR . "register.php?step=2");
          exit();
       }else if (($_SESSION['step'] == 3) && ($step != 3)) {
-         header("Location: register.php?step=3");
+         header("Location: " . App::$APP_DIR . "register.php?step=3");
          exit();
       }else if (($_SESSION['step'] == 4) && ($step != 4)) {
-         header("Location: register.php?step=4");
+         header("Location: " . App::$APP_DIR . "register.php?step=4");
          exit();
       }
 
@@ -80,7 +80,7 @@
       } # $step == 4 && $_SESSION['step'] == 4
 
    }else {
-      header("Location: register.php?step=1");
+      header("Location: " . App::$APP_DIR . "register.php?step=1");
       exit();
    }
 

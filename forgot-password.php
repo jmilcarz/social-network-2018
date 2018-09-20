@@ -1,7 +1,7 @@
 <?php
 require_once('app/autoload.php');
 if (Auth::loggedin()) {
-   header("Location: index.php");
+   header("Location: " . App::$APP_DIR . "index.php");
    exit();
 }
 if (isset($_POST['send'])) {

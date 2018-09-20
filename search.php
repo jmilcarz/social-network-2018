@@ -1,7 +1,7 @@
 <?php require('app/autoload.php');
 
 if (!Auth::loggedin()) {
-   header('Location: index.php');
+   header('Location: ' . App::$APP_DIR . 'index.php');
    exit();
 }
 
@@ -93,7 +93,7 @@ if (isset($_GET['q'])) {
          e.preventDefault();
          let searchphrase = $("#search-input").val();
          $.ajax({
-            url: "app/api/search.php",
+            url: "<?php echo App::$APP_DIR; ?>app/api/search.php",
             type: 'POST',
             async: false,
             cache: false,

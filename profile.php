@@ -8,7 +8,7 @@ if (isset($_GET['u'])) {
          $profileUser = DB::query('SELECT * FROM users, user_info WHERE users.id = :userid AND useri_user_id = :userid', [':userid' => $gotuser])[0];
       }else {
          # user doesn't exists!
-         echo 'you shall not pass!';
+         require('app/modules/error_pages/profile.php');
          exit();
       }
 
@@ -18,10 +18,9 @@ if (isset($_GET['u'])) {
          $profileUser = DB::query('SELECT * FROM users, user_info WHERE users.id = :userid AND useri_user_id = :userid', [':userid' => $gotUserId])[0];
       } else {
          # user doesn't exists!
-         echo 'you shall not pass!';
+         require('app/modules/error_pages/profile.php');
          exit();
       }
-
    }
 
    ?>
@@ -35,7 +34,7 @@ if (isset($_GET['u'])) {
       <?php if (Auth::loggedin()) { ?>
          <script>
             $(function() {
-               $.post( "http://localhost/facebook/app/api/friends.php", { APIload: true, APIUserId: <?php echo $profileUser['id']; ?>, APILoggedinId: <?php echo Auth::loggedin(); ?> })
+               $.post( "<?php echo App::$APP_DIR; ?>app/api/friends.php", { APIload: true, APIUserId: <?php echo $profileUser['id']; ?>, APILoggedinId: <?php echo Auth::loggedin(); ?> })
                .done(function( data ) {
                   $('#friendActionsCTAS').html(data);
 
@@ -43,7 +42,7 @@ if (isset($_GET['u'])) {
             });
             setInterval(function() {
                $.ajax({
-                  url: "http://localhost/facebook/app/api/friends.php",
+                  url: "<?php echo App::$APP_DIR; ?>app/api/friends.php",
                   type: 'POST',
                   data: { APIload: true, APIUserId: <?php echo $profileUser['id']; ?>, APILoggedinId: <?php echo Auth::loggedin(); ?> },
                   success: function(data) {
@@ -54,7 +53,7 @@ if (isset($_GET['u'])) {
 
          <?php if (DB::query('SELECT friends_id FROM friends WHERE (friends_userid = :userid AND friends_friendid = :friendid) OR (friends_userid = :friendid AND friends_friendid = :userid)', [':userid' => Auth::loggedin(), ':friendid' => $profileUser['id']])[0]['friends_id']) { ?>
             $(function() {
-               $.post( "http://localhost/facebook/app/api/follow.php", { APIload: true, APIUserId: <?php echo $profileUser['id']; ?>, APILoggedinId: <?php echo Auth::loggedin(); ?> })
+               $.post( "<?php echo App::$APP_DIR; ?>app/api/follow.php", { APIload: true, APIUserId: <?php echo $profileUser['id']; ?>, APILoggedinId: <?php echo Auth::loggedin(); ?> })
                .done(function( data ) {
                   $('#friendFollowingsActionsCTAS').html(data);
                });
@@ -72,14 +71,14 @@ if (isset($_GET['u'])) {
       if ($profileUser['user_avatar'] == 'no-photo') {
          echo 'https://www.ischool.berkeley.edu/sites/default/files/default_images/avatar.jpeg';
       } else {
-         echo 'http://localhost/facebook/storage/pictures/%E2%81%A9' . $profileUser['user_avatar'];
+         echo App::$APP_DIR . 'storage/pictures/%E2%81%A9' . $profileUser['user_avatar'];
       }
       ?>" width="150" height="150">
       <img src="<?php
       if ($profileUser['user_backgroundphoto'] == 'no-photo') {
          echo 'https://i.imgur.com/LTtOyNfg.png';
       } else {
-         echo 'http://localhost/facebook/storage/pictures/%E2%81%A9' . $profileUser['user_backgroundphoto'];
+         echo App::$APP_DIR . 'storage/pictures/%E2%81%A9' . $profileUser['user_backgroundphoto'];
       }
       ?>" height="150">
       <h1><?= $profileUser['user_name']; ?> (<?= $profileUser['id']; ?>)</h1>
@@ -93,4 +92,4 @@ if (isset($_GET['u'])) {
    </body>
    </html>
 
-<?php } else { header("Location: http://localhost/facebook/index.php"); exit(); } ?>
+<?php } else { header("Location: " . App::$APP_DIR . "index.php"); exit(); } ?>
