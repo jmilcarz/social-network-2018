@@ -6,31 +6,11 @@ if (!Auth::loggedin()) {
 }
 
 if (isset($_GET['q'])) {
-   $pdo = new PDO('mysql:host=localhost;dbname=newfb;charset=utf8mb4', 'root', '', array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8mb4'"));
-
    $query = Security::check($_GET['q']);
    if (strlen($query) < 2) {
       echo 'query is too short!';
       exit();
    }
-   $terms = explode(' ', $query);
-
-   $x = 0;
-   $construct = "";
-   $params = array();
-   foreach ($terms as $term) {
-      $x++;
-      if ($x == 1) {
-         $construct .= "users.user_firstname LIKE CONCAT('%',:search$x,'%') OR users.user_lastname LIKE CONCAT('%',:search$x,'%') OR users.user_username LIKE CONCAT('%',:search$x,'%')";
-      }else {
-         $construct .= " AND users.user_firstname LIKE CONCAT('%',:search$x,'%') OR users.user_lastname LIKE CONCAT('%',:search$x,'%') OR users.user_username LIKE CONCAT('%',:search$x,'%')";
-      }
-      $params["search$x"] = $term;
-   }
-
-
-   $results = $pdo->prepare("SELECT users.user_name, users.user_name, users.user_avatar, users.user_username FROM users WHERE $construct ORDER BY user_name DESC");
-   $results->execute($params);
 
    ?>
       <!DOCTYPE html>
@@ -43,21 +23,21 @@ if (isset($_GET['q'])) {
       </head>
       <body>
          <h1>Results for: <?php echo $query; ?></h1>
-         <form id="search-form">
+         <form id="search-form" method="post">
             <input type="text" placeholder="Search" id="search-input">
             <button type="submit">-></button>
          </form>
          <script>
-            $('#search-form').submit(function(e) {
+            $('#search-form').submit(function() {
                e.preventDefault();
                let searchphrase = $("#search-input").val();
                $.ajax({
                   url: "app/api/search.php",
-                  type: 'POST',
+                  type: 'GET',
                   async: true,
                   cache: true,
                   timeout: 30000,
-                  data: {query: searchphrase},
+                  data: {q: searchphrase},
                   beforeSend: function() {
                      $('#results').html("Loading");
                   },
@@ -72,26 +52,20 @@ if (isset($_GET['q'])) {
          </script>
          <div id="results">
             <?php
-
-            if ($results->rowCount() == 0) {
-                 echo "0 results found <hr>";
-            }else {
-                 echo $results->rowCount() . " results found <br>";
-            }
-            foreach ($results->fetchAll() as $result) { ?>
-               <a href='profile/<?php echo $result['user_username']; ?>'>
-                  <img src="<?php
-                  if ($result['user_avatar'] == 'no-photo') {
-                     echo 'https://www.ischool.berkeley.edu/sites/default/files/default_images/avatar.jpeg';
-                  } else {
-                     echo 'http://localhost/facebook/storage/pictures/%E2%81%A9' . $profileUser['user_avatar'];
-                  }
-                  ?>" alt="" width="50" height="50">
-                  <?php echo $result['user_name']; ?>
-               </a><hr>
-            <?php }
-
+            $users = DB::query('SELECT users.user_name, users.user_avatar, users.user_username FROM users WHERE user_name = :query OR (user_firstname = :query OR user_lastname = :query) ORDER BY user_name ASC', [':query' => $query]);
+            foreach ($users as $user) {
             ?>
+            <a href='profile/<?php echo $user['user_username']; ?>'>
+               <img src="<?php
+               if ($user['user_avatar'] == 'no-photo') {
+                  echo 'https://www.ischool.berkeley.edu/sites/default/files/default_images/avatar.jpeg';
+               } else {
+                  echo 'http://localhost/facebook/storage/pictures/%E2%81%A9' . $user['user_avatar'];
+               }
+               ?>" alt="" width="50" height="50">
+               <?php echo $user['user_name']; ?>
+            </a><hr>
+            <?php } ?>
          </div>
       </body>
       </html>
@@ -105,8 +79,6 @@ if (isset($_GET['q'])) {
 <head>
    <?php require('app/incs/head-metas.inc.php'); ?>
    <title>Search</title>
-   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-
 </head>
 <body>
    <h1>Search</h1>
@@ -114,6 +86,8 @@ if (isset($_GET['q'])) {
       <input type="text" placeholder="Search" id="search-input">
       <button type="submit">-></button>
    </form>
+   <div id="results"></div>
+   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
    <script>
       $('#search-form').submit(function(e) {
          e.preventDefault();
@@ -134,6 +108,5 @@ if (isset($_GET['q'])) {
          });
       });
    </script>
-   <div id="results"></div>
 </body>
 </html>
