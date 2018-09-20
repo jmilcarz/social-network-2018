@@ -2,10 +2,16 @@
 if (isset($_POST['SENDuserid']) && isset($_POST['SENDloggedUserid'])) {
    require('../../autoload.php');
    session_start();
+
    $userid = Security::check($_POST['SENDuserid']);
    $loggedUserid = Security::check($_POST['SENDloggedUserid']);
-
-   $status = Friends::sendFriendRequest($loggedUserid, $userid, "standard message");
+   
+   if (isset($_POST['SENDMessage'])) {
+      $message = Security::check($_POST['SENDMessage']);
+      $status = Friends::sendFriendRequest($loggedUserid, $userid, $message);
+   } else {
+      $status = Friends::sendFriendRequest($loggedUserid, $userid, "standard message");
+   }
 
    if ($status == false) {
       exit();

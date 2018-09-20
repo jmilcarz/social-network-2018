@@ -12,7 +12,7 @@ class Friends
          if (DB::query('SELECT friendr_id FROM friend_requests WHERE (friendr_senderid = :senderid AND friendr_receiverid = :receiverid) OR (friendr_senderid = :receiverid AND friendr_receiverid = :senderid)', [':senderid' => $senderid,':receiverid' => $receiverid])[0]['friendr_id']) {
             echo 'That request already exists! You can accept it or resend it.';
             return false;
-         } else if (strlen($message) < 3 || strlen($message) >= 32) {
+         } else if (strlen($message) < 3 || strlen($message) > 32) {
             echo 'Invalid message. min: 3, max: 32';
             return false;
          }
@@ -26,6 +26,24 @@ class Friends
       DB::query('INSERT INTO friend_requests VALUES (\'\', :senderid, :receiverid, :dos, :message)', [':senderid' => $senderid, ':receiverid' => $receiverid, ':dos' => $bdate, ':message' => $message]);
       ## echo ';
       return true;
+   }
+
+   public static function cancelFriendRequest($requestid, $senderid, $receiverid) {
+      if (!is_numeric($senderid) || !is_numeric($receiverid)) {
+         echo 'Senderid & receiverid must be an intiger!';
+         return false;
+      }
+      if (!DB::query('SELECT friends_id FROM friends WHERE (friends_userid = :userid AND friends_friendid = :friendid) OR (friends_userid = :friendid AND friends_friendid = :userid)', [':userid' => $senderid, ':friendid' => $receiverid])[0]['friends_id']) {
+         if (DB::query('SELECT friendr_id FROM friend_requests WHERE (friendr_senderid = :senderid AND friendr_receiverid = :receiverid) OR (friendr_senderid = :receiverid AND friendr_receiverid = :senderid)', [':senderid' => $senderid,':receiverid' => $receiverid])[0]['friendr_id']) {
+            DB::query('DELETE FROM friend_requests WHERE friendr_id = :friendrid AND (friendr_senderid = :senderid AND friendr_receiverid = :receiverid) OR (friendr_senderid = :receiverid AND friendr_receiverid = :senderid)', [':friendrid' => $requestid,':senderid' => $senderid,':receiverid' => $receiverid]);
+            return true;
+         } else {
+            return false;
+         }
+      } else {
+         echo "you can't cancel requests.";
+         return false;
+      }
    }
 
    public static function acceptFriendRequest($requestid, $senderid, $receiverid) {
@@ -52,26 +70,7 @@ class Friends
       }
    }
 
-   public static function cancelFriendRequest($requestid, $senderid, $receiverid) {
-      if (!is_numeric($senderid) || !is_numeric($receiverid)) {
-         echo 'Senderid & receiverid must be an intiger!';
-         return false;
-      }
-      if (!DB::query('SELECT friends_id FROM friends WHERE (friends_userid = :userid AND friends_friendid = :friendid) OR (friends_userid = :friendid AND friends_friendid = :userid)', [':userid' => $senderid, ':friendid' => $receiverid])[0]['friends_id']) {
-         if (DB::query('SELECT friendr_id FROM friend_requests WHERE (friendr_senderid = :senderid AND friendr_receiverid = :receiverid) OR (friendr_senderid = :receiverid AND friendr_receiverid = :senderid)', [':senderid' => $senderid,':receiverid' => $receiverid])[0]['friendr_id']) {
-            DB::query('DELETE FROM friend_requests WHERE friendr_id = :friendrid AND (friendr_senderid = :senderid AND friendr_receiverid = :receiverid) OR (friendr_senderid = :receiverid AND friendr_receiverid = :senderid)', [':friendrid' => $requestid,':senderid' => $senderid,':receiverid' => $receiverid]);
-            return true;
-         } else {
-            return false;
-         }
-      } else {
-         echo "you can't cancel requests.";
-         return false;
-      }
-
-   }
-
-   public static function deleteFriend($friendid, $userid) {
+   public static function removeFriend($friendid, $userid) {
       if (!is_numeric($friendid) || !is_numeric($userid)) {
          echo 'Senderid & receiverid must be an intiger!';
          return false;
@@ -80,8 +79,10 @@ class Friends
          DB::query('DELETE FROM friends WHERE (friends_userid = :userid AND friends_friendid = :friendid) OR (friends_userid = :friendid AND friends_friendid = :userid)', [':userid' => $userid, ':friendid' => $friendid]);
          Follow::stopFollowing($userid, $friendid);
          Follow::stopFollowing($friendid, $userid);
+         return true;
       } else {
          echo 'you cannot delete';
+         return false;
       }
    }
 
