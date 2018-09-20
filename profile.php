@@ -24,22 +24,6 @@ if (isset($_GET['u'])) {
 
    }
 
-   if (Auth::loggedin()) {
-
-      # followers
-      if (DB::query('SELECT friends_id FROM friends WHERE (friends_userid = :userid AND friends_friendid = :friendid) OR (friends_userid = :friendid AND friends_friendid = :userid)', [':userid' => Auth::loggedin(), ':friendid' => $profileUser['id']])) {
-
-         if (isset($_POST['startFollowing'])) {
-            Follow::startFollowing(Auth::loggedin(), $profileUser['id'], "1");
-         }
-
-         if (isset($_POST['stopFollowing'])) {
-            Follow::stopFollowing(Auth::loggedin(), $profileUser['id']);
-         }
-
-      }
-
-   }
    ?>
 
    <!DOCTYPE html>
@@ -53,7 +37,7 @@ if (isset($_GET['u'])) {
             $(function() {
                $.post( "http://localhost/facebook/app/api/friends.php", { APIload: true, APIUserId: <?php echo $profileUser['id']; ?>, APILoggedinId: <?php echo Auth::loggedin(); ?> })
                .done(function( data ) {
-                  $('#ctaBoxId').html(data);
+                  $('#friendActionsCTAS').html(data);
 
                });
             });
@@ -63,7 +47,7 @@ if (isset($_GET['u'])) {
                   type: 'POST',
                   data: { APIload: true, APIUserId: <?php echo $profileUser['id']; ?>, APILoggedinId: <?php echo Auth::loggedin(); ?> },
                   success: function(data) {
-                     $('#ctaBoxId').html(data);
+                     $('#friendActionsCTAS').html(data);
                   }
                })
             }, 15000);
@@ -72,7 +56,7 @@ if (isset($_GET['u'])) {
             $(function() {
                $.post( "http://localhost/facebook/app/api/follow.php", { APIload: true, APIUserId: <?php echo $profileUser['id']; ?>, APILoggedinId: <?php echo Auth::loggedin(); ?> })
                .done(function( data ) {
-                  $('#ctaFollowing').html(data);
+                  $('#friendFollowingsActionsCTAS').html(data);
                });
             });
          </script>
@@ -104,7 +88,7 @@ if (isset($_GET['u'])) {
       <p>gender: <?= $profileUser['useri_gender']; ?></p>
       <hr>
       <?php if (Auth::loggedin() && $profileUser['id'] != Auth::loggedin()) { # loading from AJAX ?>
-         <div class="cta" id="ctaBoxId"></div>
+         <div class="cta" id="friendActionsCTAS"></div>
       <?php } ?>
    </body>
    </html>

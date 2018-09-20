@@ -15,11 +15,21 @@ if (isset($_POST['APIload'])) {
             let loggedUserid = <?php echo $loggedinuser; ?>;
             $.post( "http://localhost/facebook/app/api/friends.php", { REMOVEuserid: userid, REMOVEloggedUserid: loggedUserid })
             .done(function( data ) {
-               $('#ctaBoxId').html(data);
+               $('#friendActionsCTAS').html(data);
             });
          });
       </script>
-      <div id="ctaFollowing"></div>
+      <div id="friendFollowingsActionsCTAS"></div>
+      <script>
+         <?php if (DB::query('SELECT friends_id FROM friends WHERE (friends_userid = :userid AND friends_friendid = :friendid) OR (friends_userid = :friendid AND friends_friendid = :userid)', [':userid' => $loggedinuser, ':friendid' => $userid])[0]['friends_id']) { ?>
+            $(function() {
+               $.post( "http://localhost/facebook/app/api/follow.php", { APIload: true, APIUserId: <?php echo $userid; ?>, APILoggedinId: <?php echo $loggedinuser; ?> })
+               .done(function( data ) {
+                  $('#friendFollowingsActionsCTAS').html(data);
+               });
+            });
+         <?php } ?>
+      </script>
    <?php } else { ?>
 
       <?php if (DB::query('SELECT friendr_id FROM friend_requests WHERE friendr_senderid = :senderid AND friendr_receiverid = :receiverid', [':senderid' => $loggedinuser, ':receiverid' => $userid])[0]['friendr_id']) { ?>
@@ -33,7 +43,7 @@ if (isset($_POST['APIload'])) {
                let loggedUserid = <?php echo $loggedinuser; ?>;
                $.post( "http://localhost/facebook/app/api/friends.php", { CANCELuserid: userid, CANCELloggedUserid: loggedUserid })
                .done(function( data ) {
-                  $('#ctaBoxId').html(data);
+                  $('#friendActionsCTAS').html(data);
                });
             });
          </script>
@@ -50,7 +60,7 @@ if (isset($_POST['APIload'])) {
                let message = $("#SENDfriendFormMessage").val();
                $.post( "http://localhost/facebook/app/api/friends.php", { SENDuserid: userid, SENDloggedUserid: loggedUserid, SENDMessage: message })
                .done(function( data ) {
-                  $('#ctaBoxId').html(data);
+                  $('#friendActionsCTAS').html(data);
                });
             });
          </script>
@@ -71,7 +81,7 @@ if (isset($_POST['APIload'])) {
                let loggedUserid = <?php echo $loggedinuser; ?>;
                $.post( "http://localhost/facebook/app/api/friends.php", { ACCEPTuserid: userid, ACCEPTloggedUserid: loggedUserid })
                .done(function( data ) {
-                  $('#ctaBoxId').html(data);
+                  $('#friendActionsCTAS').html(data);
                });
             });
          </script>
@@ -85,7 +95,7 @@ if (isset($_POST['APIload'])) {
                let loggedUserid = <?php echo $loggedinuser; ?>;
                $.post( "http://localhost/facebook/app/api/friends.php", { REJECTuserid: userid, REJECTloggedUserid: loggedUserid })
                .done(function( data ) {
-                  $('#ctaBoxId').html(data);
+                  $('#friendActionsCTAS').html(data);
                });
             });
          </script>
@@ -121,7 +131,7 @@ if (isset($_POST['SENDuserid']) && isset($_POST['SENDloggedUserid'])) { # SEND &
          let loggedUserid = <?php echo $loggedUserid; ?>;
          $.post( "http://localhost/facebook/app/api/friends.php", { CANCELuserid: userid, CANCELloggedUserid: loggedUserid })
          .done(function( data ) {
-            $('#ctaBoxId').html(data);
+            $('#friendActionsCTAS').html(data);
          });
       });
    </script>
@@ -153,7 +163,7 @@ if (isset($_POST['CANCELuserid']) && isset($_POST['CANCELloggedUserid'])) { # CA
          let message = $("#SENDfriendFormMessage").val();
          $.post( "http://localhost/facebook/app/api/friends.php", { SENDuserid: userid, SENDloggedUserid: loggedUserid, SENDMessage: message })
          .done(function( data ) {
-            $('#ctaBoxId').html(data);
+            $('#friendActionsCTAS').html(data);
          });
       });
    </script>
@@ -172,22 +182,33 @@ if (isset($_POST['ACCEPTuserid']) && isset($_POST['ACCEPTloggedUserid'])) { # AC
       exit();
    }
 
-   ### cta box ### ?>
-   <form method="post" id="REMOVEfriendForm">
-      <button type="submit" name="removeFR" id="REMOVEfriendFormBtn">remove from friends</button>
-   </form>
-   <script>
-      $('#REMOVEfriendForm').submit(function(e) {
-         e.preventDefault();
-         let userid = <?php echo $userid; ?>;
-         let loggedUserid = <?php echo $loggedinuser; ?>;
-         $.post( "http://localhost/facebook/app/api/friends.php", { REMOVEuserid: userid, REMOVEloggedUserid: loggedUserid })
-         .done(function( data ) {
-            $('#ctaBoxId').html(data);
+   ### cta box ###
+   if (DB::query('SELECT friends_id FROM friends WHERE (friends_userid = :userid AND friends_friendid = :friendid) OR (friends_userid = :friendid AND friends_friendid = :userid)', [':userid' => $loggedUserid, ':friendid' => $userid])[0]['friends_id']) { ?>
+      <form method="post" id="REMOVEfriendForm">
+         <button type="submit" name="removeFR" id="REMOVEfriendFormBtn">remove from friends</button>
+      </form>
+      <script>
+         $('#REMOVEfriendForm').submit(function(e) {
+            e.preventDefault();
+            let userid = <?php echo $userid; ?>;
+            let loggedUserid = <?php echo $loggedUserid; ?>;
+            $.post( "http://localhost/facebook/app/api/friends.php", { REMOVEuserid: userid, REMOVEloggedUserid: loggedUserid })
+            .done(function( data ) {
+               $('#friendActionsCTAS').html(data);
+            });
          });
-      });
-   </script>
-   <?php ### -cta box- ###
+      </script>
+      <div id="friendFollowingsActionsCTAS"></div>
+      <script>
+         function loadFollows() {
+            $.post( "http://localhost/facebook/app/api/follow.php", { APIload: true, APIUserId: <?php echo $userid; ?>, APILoggedinId: <?php echo $loggedUserid; ?> })
+            .done(function( data ) {
+               $('#friendFollowingsActionsCTAS').html(data);
+            });
+         }
+         loadFollows();
+      </script>
+   <?php }### -cta box- ###
 }
 # -- end -- accept request
 
@@ -215,7 +236,7 @@ if (isset($_POST['REMOVEuserid']) && isset($_POST['REMOVEloggedUserid'])) { # RE
          let message = $("#SENDfriendFormMessage").val();
          $.post( "http://localhost/facebook/app/api/friends.php", { SENDuserid: userid, SENDloggedUserid: loggedUserid, SENDMessage: message })
          .done(function( data ) {
-            $('#ctaBoxId').html(data);
+            $('#friendActionsCTAS').html(data);
          });
       });
    </script>
@@ -247,7 +268,7 @@ if (isset($_POST['REJECTuserid']) && isset($_POST['REJECTloggedUserid'])) { # RE
          let message = $("#SENDfriendFormMessage").val();
          $.post( "http://localhost/facebook/app/api/friends.php", { SENDuserid: userid, SENDloggedUserid: loggedUserid, SENDMessage: message })
          .done(function( data ) {
-            $('#ctaBoxId').html(data);
+            $('#friendActionsCTAS').html(data);
          });
       });
    </script>
