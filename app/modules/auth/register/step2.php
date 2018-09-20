@@ -9,8 +9,8 @@ $errors = [
    "Username can contain only letters & numbers!",
    "Phone number can contain only numbers!",
    "Incorrect bio! (min: 3 max: 64 characters)",
-   "Problem appeared while uploading profile picture, please refresh the page.",
-   "Problem appeared while uploading background picture, please refresh the page.",
+   "Problem appeared while uploading a profile picture.",
+   "Problem appeared while uploading a background picture.",
    "Username already taken!"
 ];
 // end -- registeration errors array
@@ -63,29 +63,45 @@ if (isset($_POST['registerS2']) && isset($_POST['username'])) {
    }
 
    if ($avatar != "nothing") {
-      $hashed_avatar_name = md5(basename($_FILES['avatar']['name'])) . "." . substr($_FILES['avatar']['type'], 6);
-      $uploaddir = '/Applications/XAMPP/xamppfiles/htdocs/facebook/storage/pictures/⁩';
-      $uploadfile = $uploaddir . $hashed_avatar_name;
-
-      if (move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadfile)) {
-         echo "";
-      }else {
-         header("Location: register.php?step=2&error=6"); #6 = Problem appeared while uploading profile picture, please refresh the page.
+      $fileExt = exploade('.', $_FILES['avatar']['name']);
+      $fileActualExt = strtolower(end($fileExt));
+      $allowed = ['jpg', 'jpeg', 'png'];
+      if (!in_array($fileActualExt, $allowed)) {
+         header("Location: register.php?step=2&error=6"); #6 = Problem appeared while uploading a profile picture.
+         exit();
+      } else if ($_FILES['avatar']['error'] === 0) {
+         header("Location: register.php?step=2&error=6"); #6 = Problem appeared while uploading a profile picture.
+         exit();
+      } else if ($_FILES['avatar']['size'] > 5000000) {
+         header("Location: register.php?step=2&error=6"); #6 = Problem appeared while uploading a profile picture.
          exit();
       }
+
+      $avatar_new_name = uniqid('', true) . "." . $fileActualExt;
+      $file_destination = App::$APP_DIR . 'storage/pictures/'. $avatar_new_name;
+
+      move_uploaded_file($_FILES['avatar']['tmp_name'], $file_destination);
    }
 
    if ($backgroundphoto != "nothing") {
-      $hashed_backgroundphoto_name = md5(basename($_FILES['backgroundphoto']['name'])) . "." . substr($_FILES['backgroundphoto']['type'], 6);
-      $uploaddir = '/facebook/storage/pictures/⁩';
-      $uploadfile = $uploaddir . $hashed_backgroundphoto_name;
-
-      if (move_uploaded_file($_FILES['backgroundphoto']['tmp_name'], $uploadfile)) {
-         echo "";
-      }else {
-         header("Location: register.php?step=2&error=7"); #7 = Problem appeared while uploading background picture, please refresh the page.
+      $fileExt = exploade('.', $_FILES['backgroundphoto']['name']);
+      $fileActualExt = strtolower(end($fileExt));
+      $allowed = ['jpg', 'jpeg', 'png'];
+      if (!in_array($fileActualExt, $allowed)) {
+         header("Location: register.php?step=2&error=6"); #6 = Problem appeared while uploading a profile picture.
+         exit();
+      } else if ($_FILES['backgroundphoto']['error'] === 0) {
+         header("Location: register.php?step=2&error=6"); #6 = Problem appeared while uploading a profile picture.
+         exit();
+      } else if ($_FILES['backgroundphoto']['size'] > 10000000) {
+         header("Location: register.php?step=2&error=6"); #6 = Problem appeared while uploading a profile picture.
          exit();
       }
+
+      $background_new_name = uniqid('', true) . "." . $fileActualExt;
+      $file_destination = App::$APP_DIR . 'storage/pictures/'. $background_new_name;
+
+      move_uploaded_file($_FILES['backgroundphoto']['tmp_name'], $file_destination);
    }
 
    // start -- validation with js & php succeeded and now data'll be saved in session's variables
@@ -96,12 +112,12 @@ if (isset($_POST['registerS2']) && isset($_POST['username'])) {
    if ($avatar == "nothing") {
       $_SESSION['avatar'] = "no-photo";
    }else {
-      $_SESSION['avatar'] = $hashed_avatar_name;
+      $_SESSION['avatar'] = $avatar_new_name;
    }
    if ($backgroundphoto == "nothing") {
       $_SESSION['backgroundphoto'] = "no-photo";
    }else {
-      $_SESSION['backgroundphoto'] = $hashed_backgroundphoto_name;
+      $_SESSION['backgroundphoto'] = $background_new_name;
    }
 
    if ($_SESSION['phone'] == "666") {

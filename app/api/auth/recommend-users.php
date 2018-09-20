@@ -5,7 +5,7 @@ require('../../autoload.php');
 session_start();
 
 // get all users based on country & city
-$users = DB::query('SELECT users.id AS user_id, user_username, user_name, user_avatar, user_backgroundphoto, useri_country, useri_city FROM users, user_info WHERE (user_email <> :email AND user_password <> :password) AND useri_user_id = users.id AND useri_country = :country ORDER BY useri_city', [':password' =>$_SESSION['password'], ':email' => $_SESSION['email'],':country' => $_SESSION['country']]);
+$users = DB::query('SELECT users.id AS user_id, user_username, user_name, user_avatar, user_backgroundphoto, useri_country, useri_city FROM users, user_info WHERE (user_email <> :email AND user_password <> :password) AND useri_user_id = users.id AND useri_country = :country ORDER BY useri_city LIMIT 20', [':password' =>$_SESSION['password'], ':email' => $_SESSION['email'],':country' => $_SESSION['country']]);
 
 ?><div class="users">
 <?php foreach ($users as $user) { ?>
