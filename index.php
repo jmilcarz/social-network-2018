@@ -79,7 +79,13 @@ if (!Auth::loggedin()) {
    <div class="posts">
       <?php
          echo Auth::loggedin();
-         $posts = DB::query('SELECT posts.posts_id, posts.posts_content, posts.posts_tags, posts.posts_likes, posts.posts_comments, posts.posts_timestamp, users.id, users.user_name, users.user_username, users.user_sex, users.user_avatar FROM posts, users, followers WHERE users.id = :userid AND posts.posts_privacy = 1 AND followers.followers_userid = :userid AND posts.posts_authorid = followers.followers_followerid', [':userid' => Auth::loggedin()]);
+         // FIXME: FIX THIS SHITY QUERY
+         $posts = DB::query('SELECT
+            posts.posts_id, posts.posts_content, posts.posts_likes, posts.posts_comments, posts.posts_timestamp, users.user_name, users.user_username, users.user_sex, users.user_avatar
+            FROM posts, users, followers
+            WHERE users.id = :userid AND posts.posts_privacy = 1 AND followers.followers_userid = :userid
+            AND posts.posts_authorid = followers.followers_followerid ORDER BY posts_timestamp DESC',
+            [':userid' => Auth::loggedin()]);
          foreach ($posts as $post) { ?>
             <div style='width: 540px; background: #efefef; margin-bottom: 15px;'>
                <div3>
@@ -88,7 +94,7 @@ if (!Auth::loggedin()) {
                   <p style='text-align: right;'><?php echo $post['posts_timestamp']; ?></p>
                </div>
                <div>
-                  <?php echo $post['posts_content']; ?>
+                  <?php echo Post::link_add($post['posts_content']); ?>
                </div>
             </div>
          <?php }

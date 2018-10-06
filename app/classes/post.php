@@ -29,13 +29,39 @@ class Post
          $privacy = 2;
       }
 
-      $tags = [];
+      $topics = self::getTopics($content);
       $bdate = date('Y-m-d H:i:s');
 
-      DB::query('INSERT INTO posts VALUES (\'\', :userid, :content, :tags, :privacy, :likes, :comments, :shares, :bdate)', [':userid' => $userid, ':content' => $content, ':tags' => $tags, ':privacy' => $privacy, ':likes' => 0, ':comments' => 0, ':shares' => 0, ':bdate' => $bdate]);
+      DB::query('INSERT INTO posts VALUES (\'\', :userid, :content, :topics, :privacy, :likes, :comments, :shares, :bdate)', [':userid' => $userid, ':content' => $content, ':topics' => $topics, ':privacy' => $privacy, ':likes' => 0, ':comments' => 0, ':shares' => 0, ':bdate' => $bdate]);
       # '
       echo '<p>Post successfuly published!</p>';
       return true;
+   }
+
+   public static function getTopics($text) {
+      $text = explode(" ", $text);
+      $topics = "";
+      foreach ($text as $word) {
+         if (substr($word, 0, 1) == "#") {
+            $topics .= substr($word, 1).",";
+         }
+      }
+      return $topics;
+   }
+
+   public static function link_add($text) {
+      $text = explode(" ", $text);
+      $newstring = "";
+      foreach ($text as $word) {
+         if (substr($word, 0, 1) == "@") {
+            $newstring .= "<a href='profile/".substr($word, 1)."'>".htmlspecialchars($word)."</a> ";
+         } else if (substr($word, 0, 1) == "#") {
+            $newstring .= "<a href='topics.php?topic=".substr($word, 1)."'>".htmlspecialchars($word)."</a> ";
+         } else {
+            $newstring .= htmlspecialchars($word)." ";
+         }
+      }
+      return $newstring;
    }
 
 }

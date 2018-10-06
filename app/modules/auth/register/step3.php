@@ -54,7 +54,8 @@ if (isset($_POST['registerS3'])) {
    DB::query('INSERT INTO users VALUES (\'\', :username, :firstname, :lastname, :name, :email, :phone, :password, :birthday, :sex, :avatar, :backgroundphoto)', [':username' => $_SESSION['username'], ':firstname' => $_SESSION['firstname'], ':lastname' => $_SESSION['lastname'], ':name' => $_SESSION['name'], ':email' => $_SESSION['email'], ':phone' => $_SESSION['phone'], ':password' => $_SESSION['password'], ':birthday' => $_SESSION['birthday'], ':sex' => $_SESSION['sex'], ':avatar' => $_SESSION['avatar'], ':backgroundphoto' => $_SESSION['backgroundphoto']]);
    $_SESSION['userid'] = DB::query('SELECT id FROM users WHERE user_username = :username AND user_email = :email AND user_password = :password', [':username' => $_SESSION['username'], ':email' => $_SESSION['email'], ':password' => $_SESSION['password']])[0]['id'];
    DB::query('INSERT INTO user_info VALUES (\'\', :userid, :lang, :country, :city, :bio, :gender, :religion)', [':userid' => $_SESSION['userid'], ':lang' => $_SESSION['language'], ':country' => $_SESSION['country'], ':city' => $_SESSION['city'], ':bio' => $_SESSION['bio'], ':gender' => $_SESSION['gender'], ':religion' => $_SESSION['religion']]);
-
+   DB::query('INSERT INTO followers VALUES (\'\', :followerid, :userid, 1, NOW())', [':followerid' => $_SESSION['userid'], ':userid' => $_SESSION['userid']]);
+   # '
    $_SESSION['step1_completed'] = true;
    $_SESSION['step2_completed'] = true;
    $_SESSION['step3_completed'] = true;
